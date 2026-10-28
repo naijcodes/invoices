@@ -159,6 +159,95 @@ label.check input{width:26px;height:26px;accent-color:var(--acc)}
 @media (prefers-color-scheme:dark){.clear.danger{color:#F2B8B5}}
 @media (max-width:520px){dialog.ed{width:100vw;max-width:100vw;margin:auto 0 0;border-radius:14px 14px 0 0}}
 
+/* ===== How-it-works guide ===== */
+[hidden]{display:none!important}
+.howbtn{margin-top:14px;font:inherit;font-weight:700;font-size:1rem;display:inline-flex;align-items:center;gap:10px;background:transparent;color:#fff;border:2px solid #45B0E1;border-radius:999px;padding:10px 18px;min-height:48px;cursor:pointer}
+.howbtn:hover{background:rgba(69,176,225,.15)}
+.howbtn .pl{width:0;height:0;border-left:11px solid #45B0E1;border-top:7px solid transparent;border-bottom:7px solid transparent}
+.firsttime{display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:var(--acc-soft);border-left:4px solid var(--brand);border-radius:10px;padding:14px 16px;margin-bottom:18px}
+.firsttime p{margin:0;font-weight:700}
+dialog.tut{border:0;padding:0;width:min(640px,100vw);max-width:100vw;max-height:100vh;background:var(--card);color:var(--ink);border-radius:16px;box-shadow:0 24px 70px rgba(0,0,0,.45)}
+dialog.tut::backdrop{background:rgba(8,19,32,.75)}
+.tut-top{display:flex;justify-content:space-between;align-items:center;padding:14px 16px 10px}
+.tut-top b{font-size:1.15rem}
+.tut-x{font:inherit;font-size:1.3rem;width:48px;height:48px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.tut-stage{position:relative;margin:0 16px;height:clamp(290px,46vh,360px);border-radius:14px;overflow:hidden;background:linear-gradient(160deg,#0E2841 0%,#123554 100%);font-size:15px}
+.tut-scene{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:18px;color:#0E2841}
+.tut-cap{min-height:5.4em;margin:14px 16px 6px;font-size:1.12rem;line-height:1.5}
+.tut-prog{display:flex;gap:5px;margin:4px 16px 0}
+.tut-prog i{flex:1;height:5px;border-radius:3px;background:var(--line);overflow:hidden}
+.tut-prog i b{display:block;height:100%;width:0;background:var(--brand)}
+.tut-prog i.done b{width:100%}
+.tut-prog i.now b{animation:tutfill linear forwards}
+.tut.paused .tut-prog i.now b{animation-play-state:paused}
+@keyframes tutfill{to{width:100%}}
+.tut-ctrl{display:grid;grid-template-columns:1fr 1.2fr 1fr;gap:8px;padding:12px 16px 6px}
+.tut-ctrl .btn{min-height:52px;padding:10px}
+.tut-voice{display:flex;justify-content:center;align-items:center;gap:14px;flex-wrap:wrap;padding:4px 16px 16px}
+.vpick{font-size:.95rem;color:var(--muted);display:flex;align-items:center;gap:8px}
+.vpick select{font:inherit;font-size:.95rem;max-width:210px;padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink)}
+.tut-voice .clear{font-size:1rem}
+@media (max-width:520px){dialog.tut{border-radius:0;height:100%;width:100vw}.tut-cap{font-size:1.05rem}}
+/* fingertip */
+.finger{position:absolute;left:0;top:0;width:38px;height:38px;margin:-19px 0 0 -19px;border-radius:50%;background:rgba(255,255,255,.55);border:3px solid #fff;box-shadow:0 4px 14px rgba(0,0,0,.35);transform:translate(var(--fx,50%),var(--fy,120%));transition:transform .9s cubic-bezier(.45,.05,.2,1),opacity .3s;opacity:0;pointer-events:none;z-index:20}
+.finger.on{opacity:1}
+.finger.tap{animation:ftap .45s ease}
+.finger::after{content:"";position:absolute;inset:-3px;border-radius:50%;border:3px solid #45B0E1;opacity:0}
+.finger.tap::after{animation:fring .6s ease-out}
+@keyframes ftap{50%{transform:translate(var(--fx),var(--fy)) scale(.78)}}
+@keyframes fring{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(2.3)}}
+/* mini UI */
+.m-card{background:#fff;border-radius:12px;padding:14px;box-shadow:0 8px 24px rgba(0,0,0,.25);width:min(330px,100%)}
+.m-h{font-weight:700;font-size:1.05em;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.m-num{width:24px;height:24px;border-radius:50%;background:#0E2841;color:#fff;display:inline-grid;place-items:center;font-size:.8em}
+.m-cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.m-dow{font-size:.65em;color:#5B6B77;text-align:center}
+.m-day{aspect-ratio:1.4;border:1px solid #C9DCEA;border-radius:7px;display:grid;place-items:center;font-size:.85em;position:relative;transition:background .25s,color .25s}
+.m-day.on{background:#45B0E1;border-color:#45B0E1;font-weight:700}
+.m-day.dot::after{content:"";position:absolute;top:3px;right:3px;width:6px;height:6px;border-radius:50%;background:#0E2841;box-shadow:0 0 0 1.5px #fff}
+.m-tally{display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid #C9DCEA;margin-top:10px;padding-top:8px;font-weight:700}
+.m-tally .big{font-size:1.4em}
+.m-btn{display:block;text-align:center;border-radius:9px;padding:9px 10px;font-weight:700;border:2px solid #0E2841;background:#fff;margin-top:8px;font-size:.92em}
+.m-btn.pri{background:#1B6A94;border-color:#1B6A94;color:#fff}
+.m-field{border:1px solid #C9DCEA;border-radius:8px;padding:7px 9px;margin-top:4px;font-size:.92em;background:#fff;display:flex;justify-content:space-between;align-items:center}
+.m-lbl{font-size:.78em;font-weight:700;margin-top:8px}
+.m-row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #E3ECF3;font-size:.9em}
+.m-link{color:#1B6A94;font-weight:700;text-decoration:underline}
+.m-check{display:flex;align-items:center;gap:8px;margin-top:10px;font-weight:700;font-size:.92em}
+.m-box{width:20px;height:20px;border:2px solid #1B6A94;border-radius:4px;display:grid;place-items:center;color:#fff;background:#1B6A94;font-size:.8em}
+.m-box.off{background:#fff}
+.m-ok{color:#2F7D4F;font-weight:700;opacity:0;transform:scale(.4);transition:all .35s cubic-bezier(.3,1.6,.5,1)}
+.m-ok.show{opacity:1;transform:none}
+.pop{opacity:0;transform:translateY(14px) scale(.96);transition:opacity .45s,transform .45s cubic-bezier(.3,1.3,.5,1)}
+.pop.show{opacity:1;transform:none}
+.m-over{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(8,19,32,.55);opacity:0;pointer-events:none;transition:opacity .35s;z-index:5}
+.m-over.show{opacity:1}
+.m-over .m-card{transform:translateY(30px);transition:transform .45s cubic-bezier(.3,1.3,.5,1)}
+.m-over.show .m-card{transform:none}
+.flash{animation:flash .9s ease}
+@keyframes flash{30%{background:#FFF3C4}}
+/* welcome + end */
+.w-hi{color:#45B0E1;font-weight:700;font-size:2em;text-align:center;margin-bottom:18px}
+.w-steps{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.w-step{background:#fff;border-radius:12px;padding:10px 8px;text-align:center;width:92px;font-weight:700;font-size:.86em}
+.w-step span{display:grid;place-items:center;width:34px;height:34px;margin:0 auto 6px;border-radius:50%;background:#45B0E1;color:#0E2841;font-size:1.1em}
+.w-big{color:#fff;text-align:center}
+.w-tick{width:84px;height:84px;margin:0 auto 14px;border-radius:50%;background:#45B0E1;display:grid;place-items:center;color:#0E2841;font-size:44px;font-weight:700}
+/* mini invoice */
+.mi{width:min(300px,100%);background:#fff;border-radius:6px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.3);font-size:.78em;position:relative}
+.mi-band{background:#0E2841;color:#45B0E1;font-weight:700;padding:8px 10px;display:flex;justify-content:space-between;border-bottom:3px solid #45B0E1}
+.mi-band b{color:#fff}
+.mi-rows{padding:6px 10px}
+.mi-r{display:flex;justify-content:space-between;padding:3px 4px;border-radius:3px}
+.mi-r:nth-child(even){background:#F4F9FC}
+.mi-tot{display:flex;justify-content:space-between;font-weight:700;font-size:1.15em;border-top:2px solid #45B0E1;margin:4px 10px 10px;padding-top:5px;border-radius:3px}
+.scan{position:absolute;left:6px;right:6px;height:22px;border:3px solid #F2B705;border-radius:6px;top:44px;opacity:0;transition:top .8s ease,opacity .3s}
+.scan.on{opacity:1}
+.g-win{background:#fff;border-radius:10px;padding:14px;width:min(270px,100%);box-shadow:0 10px 30px rgba(0,0,0,.35);font-size:.88em}
+.g-acc{display:flex;gap:10px;align-items:center;border:1px solid #DADCE0;border-radius:8px;padding:8px;margin-top:8px}
+.g-av{width:28px;height:28px;border-radius:50%;background:#1B6A94;color:#fff;display:grid;place-items:center;font-weight:700}
+@media (prefers-reduced-motion:reduce){.finger{transition:none}.pop,.m-over,.m-over .m-card,.m-ok{transition:none}.finger.tap,.finger.tap::after{animation:none}}
+
 </style>
 </head>
 <body>
@@ -166,8 +255,10 @@ label.check input{width:26px;height:26px;accent-color:var(--acc)}
  <p class="mark">McCOLLINS INTERNATIONAL LTD</p>
  <h1 id="greet">Hello, Collins</h1>
  <p class="lede">Let’s get this month’s invoice done. Tap the days you worked, check it, then send it off.</p>
+ <button class="howbtn" id="howBtn"><span class="pl" aria-hidden="true"></span>How it works</button>
 </div></header>
 <main>
+<div class="firsttime" id="firstTime" hidden><p>First time here? Watch the short guide.</p><button class="btn primary" id="firstBtn" style="width:auto">Show me how</button></div>
 <p class="lastline" id="lastLine"></p>
 
 <section class="step" id="s1">
@@ -238,6 +329,13 @@ label.check input{width:26px;height:26px;accent-color:var(--acc)}
 </details>
 </main>
 
+<dialog id="tut" class="tut" aria-labelledby="tutTitle">
+ <div class="tut-top"><b id="tutTitle">How to do your invoice</b><button class="tut-x" id="tutClose" aria-label="Close the guide">✕</button></div>
+ <div class="tut-stage" id="tutStage" aria-hidden="true"><div id="tutScene"></div><div class="finger" id="finger"></div></div>
+ <div class="tut-prog" id="tutProg"></div>
+ <p class="tut-cap" id="tutCap" aria-live="polite"></p>
+ <div class="tut-ctrl"><button class="btn" id="tutPrev">Back</button><button class="btn" id="tutPlay">Pause</button><button class="btn primary" id="tutNext">Next</button></div>
+</dialog>
 <dialog id="ed" class="ed" aria-labelledby="edTitle">
  <div class="edin">
   <h2 id="edTitle">Change this shift</h2>
@@ -310,6 +408,7 @@ function fillSettings(){
  $('cfHours').value=CFG.hours;$('cfRate').value=CFG.rate.toFixed(2);$('cfSleep').value=CFG.sleep.toFixed(2);$('cfTerms').value=CFG.terms;
  $('cfBank').value=CFG.bank;$('cfAccName').value=CFG.accName;$('cfSort').value=CFG.sort;$('cfAcc').value=CFG.acc;$('cfNext').value=CFG.next;}
 $('cfSave').onclick=()=>{
+ const oldNext=CFG.next;
  const h=num($('cfHours').value),r=num($('cfRate').value),s=num($('cfSleep').value),t=parseInt($('cfTerms').value||'0',10);
  const sort=$('cfSort').value.replace(/\D/g,''),acc=$('cfAcc').value.replace(/\D/g,'');
  if(!$('cfClient').value.trim()||!$('cfAddr').value.trim())return msg($('cfMsg'),'err','Fill in the client name and address.');
@@ -320,8 +419,9 @@ $('cfSave').onclick=()=>{
  if(!/^[A-Za-z]*\d+$/.test($('cfNext').value.trim()))return msg($('cfMsg'),'err','The next invoice number should look like I00016.');
  Object.assign(CFG,{client:$('cfClient').value.trim(),addr:$('cfAddr').value.trim(),contact:$('cfContact').value.trim(),hours:h,rate:r,sleep:s,terms:t,
   bank:$('cfBank').value.trim(),accName:$('cfAccName').value.trim(),sort:sort?sort.replace(/(\d\d)(\d\d)(\d\d)/,'$1-$2-$3'):'',acc,next:$('cfNext').value.trim().toUpperCase()});
+ const removed=rollBack(oldNext,CFG.next);
  store.set('cfg',CFG);fillSettings();$('invNum').value=CFG.next;
- msg($('cfMsg'),'found','Saved. These will be used for every invoice on this device.');tally();};
+ msg($('cfMsg'),'found',removed?`Saved. The next invoice is ${CFG.next}, and ${removed} earlier ${removed===1?'send has':'sends have'} been forgotten.`:'Saved. These will be used for every invoice on this device.');tally();};
 
 // ---------- calendar ----------
 const S={y:0,m:0,entries:[]}; // entries: {id,y,m,d,hours,rate,sleep:bool,desc}
@@ -530,6 +630,21 @@ $('saveMsg').onclick=()=>{const f=facts();let t=$('body').value;
  store.set('msg',t);bodyEdited=false;refreshEmail();msg($('s4msg'),'found','Saved. Next month’s email will start with this message, with the new details filled in.');};
 const recipient=()=>$('toPick').value==='__new'?$('newTo').value.trim():$('toPick').value;
 function rememberTo(to){const list=store.get('recipients',[]);if(!list.includes(to))list.unshift(to);store.set('recipients',list.slice(0,8));store.set('lastTo',to);renderRecipients(to);$('newTo').value='';}
+// If sends are recorded at or above the next invoice number (e.g. test sends), forget them
+// and move "last invoice" and the calendar back to match.
+const numOf=x=>{const m=/(\d+)$/.exec(x||'');return m?+m[1]:NaN;};
+function rollBack(oldNext,newNext){
+ const n=numOf(newNext),hist=store.get('history',[]);
+ const stale=hist.some(h=>numOf(h.number)>=n)||numOf(CFG.last&&CFG.last.number)>=n;
+ if(!stale)return 0; // nothing recorded at or above the new number: leave everything as it is
+ const keep=hist.filter(h=>numOf(h.number)<n);store.set('history',keep);
+ if(!(numOf(CFG.last&&CFG.last.number)<n)){
+  const h=keep[0];let last=null;
+  if(h){const mm=/^(\w+) (\d{4})$/.exec(h.month||'');if(mm)last={y:+mm[2],m:MONTHS.indexOf(mm[1])+1,number:h.number};}
+  if(!last&&numOf(DEFAULTS.last.number)<n)last=Object.assign({},DEFAULTS.last);
+  if(last)CFG.last=last;}
+ if(CFG.last&&CFG.last.y){let y=CFG.last.y,m=CFG.last.m+1;if(m>12){m=1;y++;}S.y=y;S.m=m;setInvDate();render();}
+ showLast();return hist.length-keep.length;}
 function markIssued(D,to){
  const hist=store.get('history',[]);hist.unshift({number:D.number,month:D.monthLabel,total:D.total,to,on:new Date().toISOString().slice(0,10)});store.set('history',hist.slice(0,36));
  const m=/^([A-Za-z]*)(\d+)$/.exec(D.number);
@@ -618,6 +733,127 @@ function send(to,out){
 $('sendNote').textContent=GMAIL?'You’ll see the invoice and email before anything is sent.':'You’ll see the invoice and email first. Then the PDF saves to your Downloads and Gmail opens with everything filled in, ready for you to attach it.';
 fillSettings();$('invNum').value=CFG.next;setInvDate();renderRecipients();showLast();render();
 (()=>{const h=new Date().getHours();$('greet').textContent=(h<5?'Hello':h<12?'Good morning':h<18?'Good afternoon':'Good evening')+', '+OWNER_NAME;})();
+// ================= HOW-IT-WORKS GUIDE =================
+(()=>{
+const dlg=$('tut'),stage=$('tutStage'),sceneBox=$('tutScene'),finger=$('finger'),cap=$('tutCap'),prog=$('tutProg');
+const RM=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+const N=OWNER_NAME;
+const q=s=>stage.querySelector(s);
+const show=s=>{const e=q(s);if(e)e.classList.add('show');};
+function moveTo(sel){const e=q(sel);if(!e)return;const sr=stage.getBoundingClientRect(),r=e.getBoundingClientRect();
+ finger.style.setProperty('--fx',(r.left-sr.left+r.width/2)+'px');finger.style.setProperty('--fy',(r.top-sr.top+r.height/2)+'px');finger.classList.add('on');}
+function tap(){finger.classList.remove('tap');void finger.offsetWidth;finger.classList.add('tap');}
+const hide=()=>finger.classList.remove('on');
+function cal(days,opts={}){let h='<div class="m-cal">'+['M','T','W','T','F','S','S'].map(d=>`<div class="m-dow">${d}</div>`).join('');
+ for(let i=0;i<(opts.lead??6);i++)h+='<div></div>';
+ for(let d=1;d<=(opts.n||30);d++)h+=`<div class="m-day${days.includes(d)?' on':''}" id="d${d}">${d}</div>`;return h+'</div>';}
+const sendLabel=GMAIL?'Looks right, send it':'Looks right, open in Gmail';
+
+const SCENES=[
+ {cap:`Hi ${N}. Your invoice takes three simple steps: tap the days you worked, check it, then send it. Let me show you.`,dur:7000,
+  html:`<div><div class="w-hi pop" id="hi">Hi ${N}</div><div class="w-steps"><div class="w-step pop" id="w1"><span>1</span>Tap your days</div><div class="w-step pop" id="w2"><span>2</span>Check it</div><div class="w-step pop" id="w3"><span>3</span>Send it</div></div></div>`,
+  steps:[[200,()=>show('#hi')],[1300,()=>show('#w1')],[2300,()=>show('#w2')],[3300,()=>show('#w3')]]},
+ {cap:`Step 1. Tap each day you worked. Every tap adds your usual shift, 15 hours plus sleep-in, and the total goes up. Tapped the wrong day? Just tap it again to take it off.`,dur:10000,
+  html:`<div class="m-card"><div class="m-h"><span class="m-num">1</span>November 2026</div>${cal([])}<div class="m-tally"><span><span class="big" id="tc">0</span> days</span><span class="big" id="tt">£0.00</span></div></div>`,
+  steps:(()=>{const s=[];let n=0;const set=k=>{q('#tc').textContent=k;q('#tt').textContent=money(k*perDay());};
+   [2,3,4,5].forEach((d,i)=>{const t=900+i*1300;s.push([t,()=>moveTo('#d'+d)],[t+800,()=>{tap();q('#d'+d).classList.add('on');set(++n);}]);});
+   s.push([6400,()=>moveTo('#d6')],[7200,()=>{tap();q('#d6').classList.add('on');set(++n);}],[8100,()=>{tap();q('#d6').classList.remove('on');set(--n);}],[9200,hide]);return s;})()},
+ {cap:`Worked different hours one day? Open “See or change each shift” and tap Change. Put in your hours, untick sleep-in if there wasn’t one, then press Save. A little dot shows that day is different.`,dur:11500,
+  html:`<div class="m-card"><div class="m-row"><span><b>Thu, 5 Nov</b><br><span id="rtxt">15 hrs + sleep-in</span></span><b id="ramt">£285.00</b><span class="m-link" id="chg">Change</span></div>
+   <div class="m-row"><span><b>Fri, 6 Nov</b><br>15 hrs + sleep-in</span><b>£285.00</b><span class="m-link">Change</span></div>
+   <div style="display:flex;gap:6px;margin-top:10px;align-items:center"><div class="m-day on" id="dd" style="width:34px">5</div><span style="font-size:.85em" id="ddtxt">5 November</span></div></div>
+   <div class="m-over" id="ov"><div class="m-card"><div class="m-h">Change this shift</div><div class="m-lbl">Hours worked</div><div class="m-field" id="hrs"><span id="hv">15</span></div>
+   <div class="m-check" id="sl"><span class="m-box" id="slb">✓</span>Sleep-in (${money(CFG.sleep)})</div><div style="font-weight:700;margin-top:10px">This shift: <span id="sa">${money(perDay())}</span></div><div class="m-btn pri" id="sv">Save shift</div></div></div>`,
+  steps:[[700,()=>moveTo('#chg')],[1500,()=>{tap();show('#ov');}],[2700,()=>moveTo('#hrs')],[3500,()=>{tap();q('#hv').textContent='8';q('#sa').textContent=money(8*CFG.rate+CFG.sleep);q('#hrs').classList.add('flash');}],
+   [4900,()=>moveTo('#slb')],[5700,()=>{tap();q('#slb').classList.add('off');q('#slb').textContent='';q('#sa').textContent=money(8*CFG.rate);}],
+   [7000,()=>moveTo('#sv')],[7800,()=>{tap();q('#ov').classList.remove('show');q('#rtxt').textContent='8 hrs · changed';q('#ramt').textContent=money(8*CFG.rate);q('#dd').classList.add('dot');q('#ddtxt').textContent='The dot means this day is different';}],[8800,hide]]},
+ {cap:`Step 2. The invoice number and date are already filled in for you. Just give them a quick look. You don’t need to change anything.`,dur:7500,
+  html:`<div class="m-card"><div class="m-h"><span class="m-num">2</span>Check the invoice details</div><div class="m-lbl">Invoice number</div><div class="m-field">I00016 <span class="m-ok" id="k1">✓</span></div><div class="m-lbl">Invoice date</div><div class="m-field">30/11/2026 <span class="m-ok" id="k2">✓</span></div></div>`,
+  steps:[[1500,()=>show('#k1')],[2600,()=>show('#k2')]]},
+ {cap:`Step 3. Choose who it’s going to. The address is remembered from last time. The email is already written for you, but you can change the words if you like.`,dur:9000,
+  html:`<div class="m-card"><div class="m-h"><span class="m-num">3</span>Email the invoice</div><div class="m-lbl">Send to</div><div class="m-field" id="to"><span>Your saved address</span><span>▾</span></div>
+   <div class="m-lbl">Message</div><div class="m-field" style="display:block;min-height:78px;font-size:.85em;line-height:1.4" id="msgbox"></div><div class="m-btn pri" id="ps">Preview and send</div></div>`,
+  steps:(()=>{const txt=`Hello,\nPlease find attached invoice I00016 for November 2026.\nKind regards, ${N}`;const s=[[800,()=>moveTo('#to')],[1600,()=>{tap();q('#to').classList.add('flash');}],[2600,hide]];
+   for(let i=1;i<=txt.length;i+=3)s.push([2800+i*28,()=>{q('#msgbox').innerText=txt.slice(0,i+2);}]);return s;})()},
+ {cap:`Press “Preview and send”. You’ll see the whole invoice first. Check the days and the total. If anything looks wrong, press “Go back and fix”. Nothing is sent until you say so.`,dur:10500,
+  html:`<div style="display:flex;flex-direction:column;align-items:center;gap:10px;width:100%"><div class="mi pop" id="inv"><div class="mi-band">McCOLLINS <b>INVOICE</b></div><div class="mi-rows">
+   ${[2,3,4,5,6].map(d=>`<div class="mi-r"><span>0${d}/11/2026</span><span>${money(perDay())}</span></div>`).join('')}</div><div class="mi-tot" id="mt"><span>Total due</span><span>${money(5*perDay())}</span></div><div class="scan" id="sc"></div></div>
+   <div style="display:flex;gap:8px;width:min(300px,100%)"><div class="m-btn pri" style="flex:1;margin:0" id="ok">${sendLabel}</div><div class="m-btn" style="flex:1;margin:0" id="fix">Go back and fix</div></div></div>`,
+  steps:[[300,()=>show('#inv')],[1400,()=>q('#sc').classList.add('on')],[2300,()=>q('#sc').style.top='70px'],[3200,()=>q('#sc').style.top='96px'],[4100,()=>q('#sc').style.top='122px'],
+   [5000,()=>{const t=q('#mt');q('#sc').style.top=(t.offsetTop-3)+'px';}],[6300,()=>moveTo('#fix')],[7600,()=>moveTo('#ok')],[8800,hide]]},
+ GMAIL?{cap:`Happy with it? Press “Looks right, send it”. Sometimes Google asks you to pick your account and press Allow. That’s normal. Then you’ll see “All done”, and a copy is kept in your Gmail Sent folder.`,dur:11500,
+  html:`<div class="m-btn pri" id="ok" style="width:220px">${sendLabel}</div><div class="m-over" id="g"><div class="g-win"><b>Choose an account</b><div class="g-acc" id="acc"><span class="g-av">M</span><span>McCollins<br><small>${COMPANY.email}</small></span></div><div class="m-btn pri" id="al" style="margin-top:12px">Allow</div></div></div>
+   <div class="m-over" id="done"><div class="w-big"><div class="w-tick">✓</div><div style="font-size:1.4em;font-weight:700">All done, ${N}</div><div style="opacity:.85">Sent with the invoice attached</div></div></div>`,
+  steps:[[700,()=>moveTo('#ok')],[1500,tap],[2100,()=>show('#g')],[3200,()=>moveTo('#acc')],[4000,tap],[5000,()=>moveTo('#al')],[5800,()=>{tap();}],[6400,()=>{q('#g').classList.remove('show');show('#done');hide();}]]}
+ :{cap:`Happy with it? Press “Looks right, open in Gmail”. Your invoice saves and Gmail opens with the email ready. Click the paperclip, choose the invoice, then press Send.`,dur:10000,
+  html:`<div class="m-btn pri" id="ok" style="width:240px">${sendLabel}</div><div class="m-over" id="g"><div class="g-win"><b>New message</b><div class="m-field">Invoice I00016 for November 2026</div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px"><div class="m-btn pri" id="snd" style="margin:0;width:90px">Send</div><span id="clip" style="font-size:1.5em">📎</span></div></div></div>`,
+  steps:[[700,()=>moveTo('#ok')],[1500,tap],[2200,()=>show('#g')],[3400,()=>moveTo('#clip')],[4200,tap],[5600,()=>moveTo('#snd')],[6400,tap],[7400,hide]]},
+ {cap:`Next month, it moves on by itself: the new month and the next invoice number are ready for you. If your rate or bank details ever change, they’re under “Invoice settings” at the bottom of the page.`,dur:10000,
+  html:`<div class="m-card"><div class="m-h" style="justify-content:space-between"><span id="mn">November 2026</span><span style="font-size:.8em">Invoice <b id="in">I00016</b></span></div>${cal([],{lead:6})}<div class="m-btn" id="set" style="margin-top:12px">⚙ Invoice settings</div></div>`,
+  steps:[[1500,()=>{q('#mn').textContent='December 2026';q('#mn').classList.add('flash');q('.m-cal').outerHTML=cal([],{lead:1,n:31});}],
+   [2600,()=>{q('#in').textContent='I00017';q('#in').parentNode.classList.add('flash');}],[4500,()=>moveTo('#set')],[5300,()=>{tap();q('#set').classList.add('flash');}],[6500,hide]]},
+ {cap:`That’s it, ${N}. Tap your days, check, send. You’ve got this. You can watch this guide again any time from “How it works” at the top.`,dur:0,
+  html:`<div class="w-big"><div class="w-tick pop" id="t">✓</div><div style="font-size:1.5em;font-weight:700" class="pop" id="tx">You’ve got this, ${N}</div>
+   <div style="display:flex;gap:10px;justify-content:center;margin-top:16px;flex-wrap:wrap" class="pop" id="bt"><button class="btn" id="again" style="background:#fff">Watch again</button><button class="btn primary" id="start" style="width:auto">Start my invoice</button></div></div>`,
+  steps:[[200,()=>show('#t')],[700,()=>show('#tx')],[1200,()=>{show('#bt');q('#again').onclick=()=>go(0);q('#start').onclick=closeTut;}]]}
+];
+
+// ---- narration: Nicky first, then the friendliest female English voice on the device ----
+const HAS_TTS='speechSynthesis' in window;
+const VOICE_PREF=['nicky','nikki','sonia','libby','maisie','google uk english female','serena','kate','stephanie','martha','samantha','ava','allison','susan','moira','tessa','karen','hazel','zira','google us english'];
+const VOICE_AVOID=/daniel|arthur|oliver|george|ryan|thomas|fred|alex\b|aaron|rishi|male\b|gordon|lee\b|tom\b|reed|rocko|grandpa|eddy|ralph|albert|bruce|junior|whisper|bad news|bells|boing|bubbles|cellos|jester|organ|superstar|trinoids|wobble|zarvox|good news/i;
+function voiceScore(v){const n=v.name.toLowerCase();if(!/^en/i.test(v.lang)||VOICE_AVOID.test(n))return -1;
+ let sc=0;const i=VOICE_PREF.findIndex(p=>n.includes(p));if(i>=0)sc+=300-i*10;
+ if(/natural|neural|online/.test(n))sc+=60;if(/enhanced|premium/.test(n))sc+=40;if(/female/.test(n))sc+=20;return sc;}
+function bestVoice(){if(!HAS_TTS)return null;const all=speechSynthesis.getVoices().filter(v=>/^en/i.test(v.lang));
+ return all.map(v=>[voiceScore(v),v]).filter(x=>x[0]>=0).sort((a,b)=>b[0]-a[0]).map(x=>x[1])[0]||all[0]||null;}
+if(HAS_TTS){speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>{};}
+const sentencesOf=t=>t.match(/[^.!?]+[.!?]+["”’]?\s*|[^.!?]+$/g).map(x=>x.trim()).filter(Boolean);
+const estMs=t=>t.split(/\s+/).length*370+900; // roughly how long the narrator takes to say it
+
+let idx=0,timers=[],startAt=0,elapsed=0,paused=false,tlDone=false,spDone=true,runDur=0,spTok=0,spIdx=0;
+function clear(){timers.forEach(clearTimeout);timers=[];}
+function schedule(){const sc=SCENES[idx];startAt=performance.now()-elapsed;
+ sc.steps.forEach(([t,fn])=>{if(t>=elapsed)timers.push(setTimeout(fn,t-elapsed));});
+ if(runDur)timers.push(setTimeout(()=>{tlDone=true;maybeNext();},Math.max(0,runDur-elapsed)));}
+function stopSpeech(){spTok++;if(HAS_TTS)speechSynthesis.cancel();} // spTok++ makes any late "ended" signal from the old sentence be ignored
+function speak(from){
+ const parts=sentencesOf(SCENES[idx].cap);
+ if(!HAS_TTS||!parts.length){spDone=true;return;}
+ const tok=++spTok;spDone=false;speechSynthesis.cancel();const v=bestVoice();
+ const sayNext=i=>{if(tok!==spTok)return;
+  if(i>=parts.length){setTimeout(()=>{if(tok===spTok){spDone=true;maybeNext();}},700);return;} // short breath before the next slide
+  spIdx=i;const u=new SpeechSynthesisUtterance(parts[i]);
+  if(v){u.voice=v;u.lang=v.lang;}else u.lang='en-GB';u.rate=1.0;u.pitch=1.1;
+  let moved=false;const go2=()=>{if(moved)return;moved=true;clearTimeout(guard);sayNext(i+1);};
+  const guard=setTimeout(go2,estMs(parts[i])*2+3000); // safety net if a browser never reports the sentence ending
+  u.onend=go2;u.onerror=()=>{if(tok===spTok)go2();};
+  speechSynthesis.speak(u);};
+ sayNext(from||0);}
+function maybeNext(){if(!paused&&tlDone&&spDone&&idx<SCENES.length-1)go(idx+1);}
+function renderProg(){prog.innerHTML='';SCENES.forEach((s,i)=>{const it=document.createElement('i');it.appendChild(document.createElement('b'));
+ if(i<idx)it.className='done';if(i===idx){it.className=runDur?'now':'done';if(runDur)it.firstChild.style.animationDuration=runDur+'ms';}prog.appendChild(it);});}
+function go(i){clear();stopSpeech();
+ idx=Math.max(0,Math.min(SCENES.length-1,i));elapsed=0;tlDone=false;paused=false;spIdx=0;dlg.classList.remove('paused');
+ const sc=SCENES[idx];
+ runDur=sc.dur?Math.max(sc.dur,estMs(sc.cap)+600):0; // each slide lasts as long as its animation or its narration, whichever is longer
+ sceneBox.innerHTML=`<div class="tut-scene">${sc.html}</div>`;hide();
+ finger.style.setProperty('--fx','50%');finger.style.setProperty('--fy','115%');
+ cap.textContent=sc.cap;renderProg();$('tutPlay').textContent='Pause';$('tutPlay').hidden=!sc.dur;
+ $('tutPrev').disabled=idx===0;$('tutNext').textContent=idx===SCENES.length-1?'Close':'Next';
+ schedule();speak(0);}
+function pause(){if(paused)return;paused=true;elapsed=performance.now()-startAt;clear();stopSpeech();dlg.classList.add('paused');$('tutPlay').textContent='Play';}
+function resume(){if(!paused)return;paused=false;dlg.classList.remove('paused');$('tutPlay').textContent='Pause';schedule();speak(spIdx);} // picks up from the sentence it was on
+function openTut(){store.set('seenGuide',true);$('firstTime').hidden=true;dlg.showModal();go(0);}
+function closeTut(){clear();stopSpeech();dlg.close();}
+$('howBtn').onclick=openTut;$('firstBtn').onclick=openTut;
+$('tutClose').onclick=closeTut;dlg.addEventListener('cancel',e=>{e.preventDefault();closeTut();});
+$('tutPrev').onclick=()=>go(idx-1);
+$('tutNext').onclick=()=>idx===SCENES.length-1?closeTut():go(idx+1);
+$('tutPlay').onclick=()=>paused?resume():pause();
+if(!store.get('seenGuide',false))$('firstTime').hidden=false;
+window.__tut={go,SCENES};
+})();
 </script>
 </body>
 </html>
