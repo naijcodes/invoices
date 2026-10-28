@@ -6,7 +6,8 @@
 <title>McCollins International: monthly invoices</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
 :root{--bg:#F4F9FC;--card:#FFFFFF;--ink:#0E2841;--muted:#4D6478;--line:#C9DCEA;--acc:#1B6A94;--acc-ink:#FFFFFF;--acc-soft:#E3F3FB;--brand:#45B0E1;--brand-ink:#0E2841;--band:#0E2841;--band-ink:#FFFFFF;--warn:#8A4B0F;--warn-bg:#FBEFDF;
@@ -98,28 +99,79 @@ dialog#pv::backdrop{background:rgba(15,25,32,.6)}
 .pvfoot{display:flex;gap:10px;flex-wrap:wrap;padding:14px 20px;border-top:1px solid var(--line)}
 .pvfoot .btn{flex:1 1 200px}
 @media (max-width:520px){.paper{padding:18px 12px;font-size:13px}.paper table.inv{table-layout:fixed;font-size:11.5px}.paper table.inv td{padding:3px 4px;overflow-wrap:anywhere}.paper table.gross{font-size:12px}dialog#pv{width:100vw;max-width:100vw;max-height:100vh;height:100%;border-radius:0;margin:0}.pvwrap{max-height:100%;height:100%}.pvbody{flex:1}}
+.lastline{color:var(--muted);margin:0 0 14px;font-size:1rem}
+.settings{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 20px;margin-top:28px}
+.settings summary{cursor:pointer;font-weight:700;font-size:1.1rem;min-height:36px;display:flex;align-items:center}
+.settings h3{font-size:1.05rem;margin:20px 0 8px}
+.settings .btn.primary{margin-top:18px}
+.fields.three{grid-template-columns:1fr 1fr 1fr}
+@media (max-width:420px){.fields.three{grid-template-columns:1fr}}
+.warnbox{background:var(--warn-bg);color:var(--warn);border-radius:10px;padding:12px 14px;margin:0 auto 14px;max-width:680px;font-weight:700}
+/* PDF look-alike preview */
+.paper{padding:0;overflow:hidden}
+.pp-band{background:#0E2841;color:#fff;padding:18px 20px 14px;border-bottom:4px solid #45B0E1;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.pp-co{color:#45B0E1;font-weight:700;font-size:18px}
+.pp-band .small{color:#fff;opacity:.9;font-size:11.5px}
+.pp-title{font-size:24px;font-weight:700;text-align:right}
+.pp-no{color:#45B0E1;text-align:right;font-size:13px}
+.pp-body{padding:18px 20px 16px}
+.pp-cols{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:14px}
+.pp-label{color:#5A6978;font-size:11.5px}
+.pp-client{font-weight:700;font-size:15px}
+.pp-meta{border-collapse:collapse;font-size:12.5px}
+.pp-meta td{padding:2px 0 2px 14px;border:0}
+.pp-meta td:first-child{color:#5A6978;padding-left:0}
+.pp-meta td:last-child{text-align:right}
+.paper table.pp-items{width:100%;border-collapse:collapse;font-size:12.5px}
+.pp-items th{background:#0E2841;color:#fff;text-align:left;padding:6px 6px;font-weight:700}
+.pp-items td{padding:5px 6px;border:0}
+.pp-items tr:nth-child(even) td{background:#F4F9FC}
+.pp-items .r{text-align:right}
+.pp-items td.amt{font-weight:700}
+.pp-tot{margin:10px 0 0 auto;width:min(260px,100%);font-size:13px}
+.pp-tot div{display:flex;justify-content:space-between;padding:3px 0}
+.pp-tot .due{border-top:2px solid #45B0E1;margin-top:4px;padding-top:6px;font-weight:700;font-size:15px}
+.pp-pay{background:#F4F9FC;border-left:4px solid #45B0E1;padding:10px 12px;margin-top:16px;font-size:12.5px}
+.pp-pay b{display:block;margin-bottom:2px}
+.pp-foot{color:#5A6978;font-size:10.5px;text-align:center;border-top:1px solid #dde6ee;margin-top:16px;padding-top:8px}
+@media (max-width:520px){.pp-items{font-size:11px}.pp-items th,.pp-items td{padding:4px 3px}.pp-items .hide-sm{display:none}}
+
+.day.custom{position:relative}
+.day.custom::after{content:"";position:absolute;top:5px;right:5px;width:8px;height:8px;border-radius:50%;background:var(--brand-ink);box-shadow:0 0 0 2px var(--card)}
+.daylist{margin-top:12px;border-top:1px solid var(--line);padding-top:8px}
+.daylist summary{cursor:pointer;font-weight:700;min-height:40px;display:flex;align-items:center;color:var(--acc)}
+.drow{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}
+.drow .dtxt{flex:1;display:flex;flex-direction:column;font-size:1rem;line-height:1.3}
+.drow .dtxt span{color:var(--muted);font-size:.92rem}
+.drow.changed .dtxt b::after{content:" · changed";color:var(--acc);font-weight:700;font-size:.85rem}
+.drow .damt{font-weight:700;white-space:nowrap}
+.stepbtns{margin-top:14px;justify-content:space-between}
+dialog.ed{border:0;padding:0;border-radius:14px;width:min(480px,96vw);background:var(--card);color:var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.35)}
+dialog.ed::backdrop{background:rgba(15,25,32,.6)}
+.edin{padding:20px}
+.edin h2{margin:0 0 14px;font-size:1.3rem}
+label.check{display:flex;align-items:center;gap:12px;font-weight:700;min-height:48px;cursor:pointer}
+label.check input{width:26px;height:26px;accent-color:var(--acc)}
+.edamt{font-weight:700;font-size:1.15rem;margin:4px 0 0}
+.edbtns{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;align-items:center}
+.edbtns .btn{flex:1 1 140px}
+.clear.danger{color:#B3261E}
+@media (prefers-color-scheme:dark){.clear.danger{color:#F2B8B5}}
+@media (max-width:520px){dialog.ed{width:100vw;max-width:100vw;margin:auto 0 0;border-radius:14px 14px 0 0}}
+
 </style>
 </head>
 <body>
 <header class="band"><div class="band-in">
  <p class="mark">McCOLLINS INTERNATIONAL LTD</p>
  <h1 id="greet">Hello, Collins</h1>
- <p class="lede">Let’s get this month’s invoice done. Open last month’s, tap the days you worked, then send it off.</p>
+ <p class="lede">Let’s get this month’s invoice done. Tap the days you worked, check it, then send it off.</p>
 </div></header>
 <main>
+<p class="lastline" id="lastLine"></p>
 
 <section class="step" id="s1">
- <h2><span class="num">1</span>Open last month’s invoice</h2>
- <label class="drop" id="drop">
-  <input type="file" id="file" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
-  <strong id="dropTitle">Choose the invoice file</strong>
-  <span class="note" id="dropHint">It’s the Word file, for example invoice_I00015.docx</span>
- </label>
- <div id="s1msg"></div>
-</section>
-
-<section class="step" id="s2" aria-disabled="true">
- <h2><span class="num">2</span>Tap the days you worked</h2>
+ <h2><span class="num">1</span>Tap the days you worked</h2>
  <div class="calhead">
   <button class="arrow" id="prev" aria-label="Previous month">‹</button>
   <b id="monthName">Month</b>
@@ -128,294 +180,396 @@ dialog#pv::backdrop{background:rgba(15,25,32,.6)}
  <div class="grid" id="cal"></div>
  <div class="tally"><div><span class="big" id="count">0</span> <span class="sub" id="countWord">days</span></div><div class="big" id="total">£0.00</div></div>
  <p class="note" id="countNote"></p>
- <button class="clear" id="clearBtn">Clear all days</button>
+ <details class="daylist" id="listWrap" hidden><summary id="listSum">See or change each shift</summary><div id="dayList"></div></details>
+ <div class="row stepbtns"><button class="btn" id="addShift">Add a different shift</button><button class="clear" id="clearBtn">Clear all days</button></div>
 </section>
 
-<section class="step" id="s3" aria-disabled="true">
- <h2><span class="num">3</span>Check the invoice details</h2>
+<section class="step" id="s2">
+ <h2><span class="num">2</span>Check the invoice details</h2>
  <div class="fields">
   <label class="f">Invoice number<input id="invNum" autocomplete="off"></label>
   <label class="f">Invoice date<input id="invDate" type="date"></label>
  </div>
- <div class="row"><button class="btn" id="previewBtn" disabled>Preview invoice</button><button class="btn" id="make" disabled>Download a copy</button></div>
- <div id="s3msg"></div>
+ <div id="s2msg"></div>
 </section>
 
-<section class="step" id="s4" aria-disabled="true">
- <h2><span class="num">4</span>Email the invoice</h2>
- <div id="sendOn">
-  <div class="stack">
-   <label class="f">Send to<select id="toPick"></select></label>
-   <label class="f" id="newToWrap" hidden>New email address<input id="newTo" type="email" inputmode="email" autocomplete="email" placeholder="name@company.co.uk"></label>
-   <label class="f">Subject<input id="subj"></label>
-   <label class="f">Message<textarea id="body"></textarea></label>
-   <div class="links"><button class="clear" id="resetMsg">Use the standard message</button><button class="clear" id="saveMsg">Remember this message for next time</button></div>
-   <div class="attach"><span class="ico" aria-hidden="true">📎</span><span id="attName">invoice.docx</span></div>
-  </div>
-  <button class="btn primary" id="sendBtn" disabled>Preview and send</button>
-  <p class="note" id="sendNote">You’ll see the invoice and email before anything is sent.</p>
-  <div id="s4msg"></div>
+<section class="step" id="s3">
+ <h2><span class="num">3</span>Email the invoice</h2>
+ <div class="stack">
+  <label class="f">Send to<select id="toPick"></select></label>
+  <label class="f" id="newToWrap" hidden>New email address<input id="newTo" type="email" inputmode="email" autocomplete="email" placeholder="name@company.co.uk"></label>
+  <label class="f">Subject<input id="subj"></label>
+  <label class="f">Message<textarea id="body"></textarea></label>
+  <div class="links"><button class="clear" id="resetMsg">Use the standard message</button><button class="clear" id="saveMsg">Remember this message for next time</button></div>
+  <div class="attach"><span class="ico" aria-hidden="true">📎</span><span id="attName">invoice.pdf</span></div>
  </div>
+ <button class="btn primary" id="sendBtn" disabled>Preview and send</button>
+ <p class="note" id="sendNote"></p>
+ <div id="s4msg"></div>
 </section>
+
+<details class="settings" id="settings">
+ <summary>Invoice settings</summary>
+ <p class="note">Already filled in from his invoices. Only change these if a rate, the client or the bank details change. Changes are saved on this device.</p>
+ <h3>Client</h3>
+ <div class="stack">
+  <label class="f">Client name<input id="cfClient"></label>
+  <label class="f">Client address<textarea id="cfAddr" rows="4"></textarea></label>
+  <label class="f">Client email or phone (optional)<input id="cfContact"></label>
+ </div>
+ <h3>Rates</h3>
+ <div class="fields three">
+  <label class="f">Hours per shift<input id="cfHours" inputmode="decimal"></label>
+  <label class="f">Hourly rate (£)<input id="cfRate" inputmode="decimal"></label>
+  <label class="f">Sleep-in fee (£)<input id="cfSleep" inputmode="decimal"></label>
+ </div>
+ <label class="f">Payment due (days after invoice date, 0 = on receipt)<input id="cfTerms" inputmode="numeric"></label>
+ <h3>Bank details</h3>
+ <div class="fields">
+  <label class="f">Bank<input id="cfBank"></label>
+  <label class="f">Account name<input id="cfAccName"></label>
+  <label class="f">Sort code<input id="cfSort" inputmode="numeric" placeholder="00-00-00"></label>
+  <label class="f">Account number<input id="cfAcc" inputmode="numeric"></label>
+ </div>
+ <h3>Numbering</h3>
+ <label class="f">Next invoice number<input id="cfNext" autocomplete="off"></label>
+ <button class="btn primary" id="cfSave">Save settings</button>
+ <div id="cfMsg"></div>
+</details>
 </main>
+
+<dialog id="ed" class="ed" aria-labelledby="edTitle">
+ <div class="edin">
+  <h2 id="edTitle">Change this shift</h2>
+  <div class="stack">
+   <label class="f">Date<input id="edDate" type="date"></label>
+   <div class="fields">
+    <label class="f">Hours worked<input id="edHours" inputmode="decimal"></label>
+    <label class="f">Hourly rate (£)<input id="edRate" inputmode="decimal"></label>
+   </div>
+   <label class="check" id="edSleepRow"><input type="checkbox" id="edSleep"> <span id="edSleepLbl">Sleep-in</span></label>
+   <label class="f">Description (optional)<input id="edDesc" placeholder="For example: Training, Half shift, Bank holiday"></label>
+   <p class="edamt" id="edAmt"></p>
+  </div>
+  <div id="edMsg"></div>
+  <div class="edbtns"><button class="btn primary" id="edSave">Save shift</button><button class="btn" id="edCancel">Cancel</button><button class="clear danger" id="edRemove">Remove this shift</button></div>
+ </div>
+</dialog>
 <dialog id="pv" aria-labelledby="pvTitle">
  <div class="pvwrap">
   <div class="pvhead"><h2 id="pvTitle">Check before sending</h2><p id="pvSub"></p></div>
-  <div class="pvbody" id="pvScroll"><div id="pvMail"></div><div class="paper" id="pvPaper"></div></div>
-  <div class="pvfoot"><button class="btn primary" id="pvSend">Looks right, send it</button><button class="btn" id="pvBack">Go back and fix</button></div>
+  <div class="pvbody" id="pvScroll"><div id="pvWarn"></div><div id="pvMail"></div><div class="paper" id="pvPaper"></div></div>
+  <div class="pvfoot"><button class="btn primary" id="pvSend">Looks right, send it</button><button class="btn" id="pvOpen">Open the PDF</button><button class="btn" id="pvBack">Go back and fix</button></div>
  </div>
 </dialog>
 <script>
-// ================= SETTINGS =================
-// Paste the Google OAuth Client ID here to turn on one-click sending through Gmail.
-// Leave it empty and the Send button opens a ready-filled Gmail email instead
-// (he attaches the downloaded invoice with the paperclip).
+// ================= SETTINGS FOR NNAMDI =================
+// One-click Gmail sending: the Google OAuth Client ID. Leave '' to use "open in Gmail" instead.
 const GOOGLE_CLIENT_ID='558606198659-99o3c891fo0hrrqnmkgtlqvrmufrv7f4.apps.googleusercontent.com';
-// =============================================
-// ===== Invoice core (shared by page + tests) =====
-const W='http://schemas.openxmlformats.org/wordprocessingml/2006/main';
-const DATE_RE=/^\s*(\d{1,2})\/(\d{1,2})\/(\d{2}|\d{4})\s*$/;
-function els(n,tag){return Array.from(n.getElementsByTagNameNS(W,tag));}
-function kids(n,tag){const o=[];for(let c=n.firstChild;c;c=c.nextSibling) if(c.nodeType===1&&c.namespaceURI===W&&c.localName===tag)o.push(c);return o;}
-function ownerP(t){let n=t.parentNode;while(n&&!(n.namespaceURI===W&&n.localName==='p'))n=n.parentNode;return n;}
-function tNodes(p){return els(p,'t').filter(t=>ownerP(t)===p);}
-function pText(p){return tNodes(p).map(t=>t.textContent).join('');}
-function setT(t,s){t.textContent=s;if(/^\s|\s$/.test(s))t.setAttributeNS('http://www.w3.org/XML/1998/namespace','xml:space','preserve');}
-// Replace text inside one paragraph across however many runs it is split into, keeping formatting.
-function replaceInP(p,re,fn){
-  const ts=tNodes(p);const full=ts.map(t=>t.textContent).join('');const m=re.exec(full);if(!m)return false;
-  const start=m.index,end=start+m[0].length,rep=fn(m);let pos=0,done=false;
-  for(const t of ts){const s=t.textContent,a=pos,b=pos+s.length;pos=b;
-    if(b<=start||a>=end){if(!(a===end&&b===end))continue;}
-    const ls=Math.max(start-a,0),le=Math.min(end-a,s.length);
-    if(ls>=s.length&&!(start===end))continue;
-    setT(t,s.slice(0,ls)+(done?'':rep)+s.slice(le));done=true;}
-  return done;}
-function cellText(tc){return els(tc,'p').map(pText).join('');}
-function findInvoiceTable(doc){
-  return els(doc,'tbl').find(tb=>{const r=kids(tb,'tr')[0];return r&&/date/i.test(cellText(kids(r,'tc')[0]||r));});}
-function readInvoice(doc){
-  const info={};
-  for(const p of els(doc,'p')){const s=pText(p);
-    let m=/Invoice\s*Number:\s*([A-Za-z]*)(\d+)/.exec(s);if(m&&!info.prefix){info.prefix=m[1];info.num=m[2];}
-    m=/Invoice\s*Date:\s*(\d{1,2})\/(\d{1,2})\/(\d{2,4})/.exec(s);if(m&&!info.invDate){info.invDate={d:+m[1],m:+m[2],y:+m[3]<100?2000+ +m[3]:+m[3]};}
-    m=/^\s*£\s?([\d,]+(?:\.\d+)?)\s*$/.exec(s);if(m&&info.gross==null)info.gross=parseFloat(m[1].replace(/,/g,''));}
-  const tb=findInvoiceTable(doc);if(!tb)throw new Error('no-table');
-  const rows=kids(tb,'tr').slice(1);
-  info.days=[];info.rowTotal=0;
-  for(const r of rows){const c=kids(r,'tc');const m=DATE_RE.exec(cellText(c[0]));
-    if(m){info.days.push({d:+m[1],m:+m[2],y:m[3].length===2?2000+ +m[3]:+m[3],yLen:m[3].length});
-      const v=parseFloat(cellText(c[c.length-1]).replace(/[£,\s]/g,''));if(!isNaN(v)&&!info.rowTotal)info.rowTotal=v;}}
-  if(!info.days.length)throw new Error('no-dates');
-  return info;}
-const pad=n=>String(n).padStart(2,'0');
-function stripIds(n){if(n.nodeType!==1)return;for(const a of Array.from(n.attributes))if(/^(w14:paraId|w14:textId)$/.test(a.name))n.removeAttribute(a.name);for(let c=n.firstChild;c;c=c.nextSibling)stripIds(c);}
-// dates: array of {d,m,y} sorted; invDate {d,m,y}; number string e.g. "I00016"
-function buildInvoice(doc,{dates,invDate,number}){
-  const tb=findInvoiceTable(doc);const rows=kids(tb,'tr').slice(1);
-  const filled=rows.filter(r=>DATE_RE.test(cellText(kids(r,'tc')[0])));
-  const yLen=DATE_RE.exec(cellText(kids(filled[0],'tc')[0]))[3].length;
-  const last=filled[filled.length-1];
-  // remove surplus rows, add extra copies of the last worked row if needed
-  for(let i=dates.length;i<filled.length;i++)filled[i].parentNode.removeChild(filled[i]);
-  const use=filled.slice(0,dates.length);let anchor=last.parentNode?last:use[use.length-1];
-  while(use.length<dates.length){const c=last.cloneNode(true);stripIds(c);anchor.parentNode.insertBefore(c,anchor.nextSibling);anchor=c;use.push(c);}
-  let total=0;
-  use.forEach((r,i)=>{const c=kids(r,'tc');const dt=dates[i];
-    const y=yLen===2?pad(dt.y%100):String(dt.y);
-    const p=els(c[0],'p').find(p=>DATE_RE.test(pText(p)));
-    replaceInP(p,/\d{1,2}\/\d{1,2}\/\d{2,4}/,()=>`${pad(dt.d)}/${pad(dt.m)}/${y}`);
-    const v=parseFloat(cellText(c[c.length-1]).replace(/[£,\s]/g,''));if(!isNaN(v))total+=v;});
-  for(const p of els(doc,'p')){
-    replaceInP(p,/(Invoice\s*Number:\s*)[A-Za-z]*\d+/,m=>m[1]+number);
-    replaceInP(p,/(Invoice\s*Date:\s*)\d{1,2}\/\d{1,2}\/\d{2,4}/,m=>`${m[1]}${pad(invDate.d)}/${pad(invDate.m)}/${invDate.y}`);
-    replaceInP(p,/^(\s*£\s?)[\d,]+(?:\.\d+)?(\s*)$/,m=>m[1]+total.toFixed(2)+m[2]);}
-  return total;}
-const XML_DECL='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n';
-// ===== Page =====
+const OWNER_NAME='Collins';
+const COMPANY={
+ name:'McCollins International Ltd',          // full registered name
+ display:'McCOLLINS INTERNATIONAL LTD',
+ regNo:'11461181',
+ address:'155 Woodcroft, CM18 6YD',           // registered office, exactly as at Companies House
+ email:'mccollins700@gmail.com',
+ directors:'Collins Okafor, Ifeoma Okafor'
+};
+// Starting values. All of these can be changed in "Invoice settings" on the page;
+// changes are saved in that browser and override what is written here.
+const DEFAULTS={
+ client:'Rally Care',
+ addr:'Suite 151, Waterhouse Business Centre\n2 Cromar Way\nChelmsford\nCM1 2QE',
+ contact:'01245 392 055  |  info@rallycare.co.uk',
+ hours:15,rate:15,sleep:60,terms:0,
+ bank:'Barclays Bank',accName:'McCollins International Ltd',sort:'20-25-19',acc:'53224651',
+ next:'I00016',
+ last:{y:2026,m:10,number:'I00015'}
+};
+// =======================================================
+
 const $=id=>document.getElementById(id);
 const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
-const S={zip:null,info:null,prefix:'I',numLen:5,y:0,m:0,picked:new Set()};
-let downloads=null;
-const GMAIL=!!GOOGLE_CLIENT_ID.trim();
-
-function msg(el,cls,text){el.innerHTML='';if(!text)return;const d=document.createElement('div');d.className=cls;d.textContent=text;el.appendChild(d);}
-const key=(y,m,d)=>`${y}-${m}-${d}`;
+const store={get(k,d){try{const v=localStorage.getItem('mci.'+k);return v==null?d:JSON.parse(v);}catch(e){return d;}},
+ set(k,v){try{localStorage.setItem('mci.'+k,JSON.stringify(v));}catch(e){}}};
+const pad=n=>String(n).padStart(2,'0');
 const money=v=>'£'+v.toLocaleString('en-GB',{minimumFractionDigits:2,maximumFractionDigits:2});
 const lastDay=(y,m)=>new Date(y,m,0).getDate();
+const fmtD=(y,m,d)=>`${pad(d)}/${pad(m)}/${y}`;
+function msg(el,cls,text){el.innerHTML='';if(!text)return;const d=document.createElement('div');d.className=cls;d.textContent=text;el.appendChild(d);}
+function el(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e;}
 
-$('file').addEventListener('change',async e=>{
- const f=e.target.files[0];if(!f)return;msg($('s1msg'));
- try{
-  const zip=await JSZip.loadAsync(f);const xf=zip.file('word/document.xml');if(!xf)throw new Error('not-docx');
-  const doc=new DOMParser().parseFromString(await xf.async('string'),'application/xml');
-  const info=readInvoice(doc);S.zip=zip;S.info=info;
-  S.prefix=info.prefix||'I';S.numLen=info.num?info.num.length:5;
-  const first=info.days[0];let m=first.m+1,y=first.y;if(m>12){m=1;y++;}
-  S.y=y;S.m=m;S.picked.clear();
-  $('dropTitle').textContent=f.name;$('dropHint').textContent='Tap here to choose a different file';
-  const lastMonth=MONTHS[first.m-1];
-  msg($('s1msg'),'found',`Found invoice ${(info.prefix||'')+(info.num||'?')} for ${lastMonth}: ${info.days.length} days, ${money(info.gross??info.days.length*info.rowTotal)}.`);
-  $('s1').classList.add('done');$('s2').removeAttribute('aria-disabled');$('s3').removeAttribute('aria-disabled');$('s4').removeAttribute('aria-disabled');bodyEdited=false;subjEdited=false;
-  if(info.num)$('invNum').value=S.prefix+String(+info.num+1).padStart(S.numLen,'0');
-  setInvDate();render();
- }catch(err){
-  S.zip=null;$('s2').setAttribute('aria-disabled','true');$('s3').setAttribute('aria-disabled','true');$('s4').setAttribute('aria-disabled','true');$('s1').classList.remove('done');
-  msg($('s1msg'),'err',err.message==='no-table'||err.message==='no-dates'?'This file doesn’t look like one of the invoices. Choose last month’s invoice (the Word file).':'This file couldn’t be opened. Choose the Word (.docx) invoice file.');
- }
- e.target.value='';
-});
+// ---------- settings ----------
+let CFG=Object.assign({},DEFAULTS,store.get('cfg',{}));
+if(!CFG.sort)CFG.sort=DEFAULTS.sort;if(!CFG.acc)CFG.acc=DEFAULTS.acc; // never fall back to blank bank details
+const num=v=>{const n=parseFloat(String(v).replace(/[£,\s]/g,''));return isNaN(n)?null:n;};
+const perDay=()=>CFG.hours*CFG.rate+CFG.sleep;
+const bankReady=()=>CFG.sort.trim()&&CFG.acc.trim();
+function fillSettings(){
+ $('cfClient').value=CFG.client;$('cfAddr').value=CFG.addr;$('cfContact').value=CFG.contact;
+ $('cfHours').value=CFG.hours;$('cfRate').value=CFG.rate.toFixed(2);$('cfSleep').value=CFG.sleep.toFixed(2);$('cfTerms').value=CFG.terms;
+ $('cfBank').value=CFG.bank;$('cfAccName').value=CFG.accName;$('cfSort').value=CFG.sort;$('cfAcc').value=CFG.acc;$('cfNext').value=CFG.next;}
+$('cfSave').onclick=()=>{
+ const h=num($('cfHours').value),r=num($('cfRate').value),s=num($('cfSleep').value),t=parseInt($('cfTerms').value||'0',10);
+ const sort=$('cfSort').value.replace(/\D/g,''),acc=$('cfAcc').value.replace(/\D/g,'');
+ if(!$('cfClient').value.trim()||!$('cfAddr').value.trim())return msg($('cfMsg'),'err','Fill in the client name and address.');
+ if(h==null||r==null||s==null||h<0||r<0||s<0)return msg($('cfMsg'),'err','Hours, hourly rate and sleep-in fee must be numbers (use 0 if there’s no sleep-in).');
+ if(isNaN(t)||t<0)return msg($('cfMsg'),'err','Payment due should be a number of days, or 0 for on receipt.');
+ if(sort&&sort.length!==6)return msg($('cfMsg'),'err','The sort code should be 6 digits, like 20-25-19.');
+ if(acc&&acc.length!==8)return msg($('cfMsg'),'err','The account number should be 8 digits.');
+ if(!/^[A-Za-z]*\d+$/.test($('cfNext').value.trim()))return msg($('cfMsg'),'err','The next invoice number should look like I00016.');
+ Object.assign(CFG,{client:$('cfClient').value.trim(),addr:$('cfAddr').value.trim(),contact:$('cfContact').value.trim(),hours:h,rate:r,sleep:s,terms:t,
+  bank:$('cfBank').value.trim(),accName:$('cfAccName').value.trim(),sort:sort?sort.replace(/(\d\d)(\d\d)(\d\d)/,'$1-$2-$3'):'',acc,next:$('cfNext').value.trim().toUpperCase()});
+ store.set('cfg',CFG);fillSettings();$('invNum').value=CFG.next;
+ msg($('cfMsg'),'found','Saved. These will be used for every invoice on this device.');tally();};
 
-function setInvDate(){$('invDate').value=`${S.y}-${String(S.m).padStart(2,'0')}-${String(lastDay(S.y,S.m)).padStart(2,'0')}`;}
+// ---------- calendar ----------
+const S={y:0,m:0,entries:[]}; // entries: {id,y,m,d,hours,rate,sleep:bool,desc}
+let nextId=1;
+(()=>{let y=CFG.last.y,m=CFG.last.m+1;if(m>12){m=1;y++;}
+ if(!CFG.last||!CFG.last.y){const t=new Date();y=t.getFullYear();m=t.getMonth()+1;if(t.getDate()<20){m--;if(m<1){m=12;y--;}}}
+ S.y=y;S.m=m;})();
+const std=(y,m,d)=>({id:nextId++,y,m,d,hours:CFG.hours,rate:CFG.rate,sleep:CFG.sleep>0,desc:''});
+const amountOf=e=>e.hours*e.rate+(e.sleep?CFG.sleep:0);
+const isStd=e=>e.hours===CFG.hours&&e.rate===CFG.rate&&e.sleep===(CFG.sleep>0)&&!e.desc;
+const descOf=e=>e.desc||(e.sleep?'Shift + sleep-in':'Shift');
+const fmtH=h=>(Math.round(h*100)/100).toString();
+function monthEntries(){return S.entries.filter(e=>e.y===S.y&&e.m===S.m).sort((a,b)=>a.d-b.d||a.id-b.id);}
+const monthDates=monthEntries; // kept for older code paths
+function daysCount(){return new Set(monthEntries().map(e=>e.d)).size;}
+function setInvDate(){$('invDate').value=`${S.y}-${pad(S.m)}-${pad(lastDay(S.y,S.m))}`;}
 function shift(n){S.m+=n;if(S.m>12){S.m=1;S.y++;}if(S.m<1){S.m=12;S.y--;}setInvDate();render();}
 $('prev').onclick=()=>shift(-1);$('next').onclick=()=>shift(1);
-$('clearBtn').onclick=()=>{S.picked.clear();render();};
-
-function monthDates(){return [...S.picked].map(k=>k.split('-').map(Number)).filter(([y,m])=>y===S.y&&m===S.m).map(([y,m,d])=>({y,m,d})).sort((a,b)=>a.d-b.d);}
-
+$('clearBtn').onclick=()=>{if(monthEntries().some(e=>!isStd(e))&&!confirm('Clear every day this month, including the ones you changed?'))return;S.entries=S.entries.filter(e=>!(e.y===S.y&&e.m===S.m));render();};
+const dayName=(y,m,d)=>new Date(y,m-1,d).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'});
 function render(){
  $('monthName').textContent=`${MONTHS[S.m-1]} ${S.y}`;
  const cal=$('cal');cal.innerHTML='';
- ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].forEach(d=>{const e=document.createElement('div');e.className='dow';e.textContent=d;cal.appendChild(e);});
+ ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].forEach(d=>cal.appendChild(el('div','dow',d)));
  const lead=(new Date(S.y,S.m-1,1).getDay()+6)%7;for(let i=0;i<lead;i++)cal.appendChild(document.createElement('div'));
+ const ents=monthEntries();
  for(let d=1;d<=lastDay(S.y,S.m);d++){
-  const b=document.createElement('button');b.className='day';b.textContent=d;
-  const k=key(S.y,S.m,d);b.setAttribute('aria-pressed',S.picked.has(k));
-  b.setAttribute('aria-label',`${d} ${MONTHS[S.m-1]}`);
-  b.onclick=()=>{S.picked.has(k)?S.picked.delete(k):S.picked.add(k);b.setAttribute('aria-pressed',S.picked.has(k));tally();};
+  const mine=ents.filter(e=>e.d===d);const b=el('button','day',String(d));
+  b.setAttribute('aria-pressed',mine.length>0);
+  const custom=mine.length>1||mine.some(e=>!isStd(e));if(custom)b.classList.add('custom');
+  b.setAttribute('aria-label',`${d} ${MONTHS[S.m-1]}`+(custom?', changed shift':''));
+  b.onclick=()=>{
+   if(!mine.length){S.entries.push(std(S.y,S.m,d));}
+   else if(custom){openEditor(mine[0]);return;}
+   else{S.entries=S.entries.filter(e=>!mine.includes(e));}
+   render();};
   cal.appendChild(b);}
- tally();}
-
+ renderList();tally();}
+function renderList(){
+ const ents=monthEntries(),box=$('dayList');box.innerHTML='';
+ $('listWrap').hidden=!ents.length;$('listSum').textContent=`See or change each shift (${ents.length})`;
+ ents.forEach(e=>{const r=el('div','drow'+(isStd(e)?'':' changed'));
+  const t=el('div','dtxt');t.append(el('b','',dayName(e.y,e.m,e.d)),el('span','',`${fmtH(e.hours)} hrs at ${money(e.rate)}${e.sleep?' + sleep-in':''}${e.desc?' · '+e.desc:''}`));
+  const amt=el('span','damt',money(amountOf(e)));const btn=el('button','clear','Change');btn.onclick=()=>openEditor(e);
+  r.append(t,amt,btn);box.appendChild(r);});}
 function tally(){
- const n=monthDates().length;$('count').textContent=n;$('countWord').textContent=n===1?'day':'days';
- $('total').textContent=money(n*(S.info?S.info.rowTotal:0));
- const last=S.info?S.info.days.length:0,note=$('countNote');
- if(n&&last&&n!==last){note.className='note warn';note.textContent=`Last month was ${last} days. That’s fine if it’s right, just check before sending.`;}
- else{note.className='note';note.textContent=n?'':'Tap each day once. Tap again to remove it.';}
- $('make').disabled=!n;$('previewBtn').disabled=!n;refreshEmail();}
+ const ents=monthEntries(),n=ents.length,days=daysCount(),changed=ents.filter(e=>!isStd(e)).length;
+ $('count').textContent=days;$('countWord').textContent=(days===1?'day':'days')+(n!==days?` (${n} shifts)`:'');
+ $('total').textContent=money(ents.reduce((a,e)=>a+amountOf(e),0));
+ const note=$('countNote');note.className='note';
+ note.textContent=n?`Standard day: ${CFG.hours} hrs at ${money(CFG.rate)}${CFG.sleep?` + ${money(CFG.sleep)} sleep-in`:''} = ${money(perDay())}.`+(changed?` ${changed} ${changed===1?'shift is':'shifts are'} different (marked with a dot).`:''):'Tap each day once for a standard shift. Tap again to remove it.';
+ refreshEmail();}
+
+// ---------- shift editor ----------
+let editing=null;
+function openEditor(e){
+ editing=e||null;const isNew=!e;
+ const base=e||std(S.y,S.m,Math.min(new Date().getDate(),lastDay(S.y,S.m)));if(isNew)nextId--;
+ $('edTitle').textContent=isNew?'Add a shift':'Change this shift';
+ const dmin=`${S.y}-${pad(S.m)}-01`,dmax=`${S.y}-${pad(S.m)}-${pad(lastDay(S.y,S.m))}`;
+ $('edDate').min=dmin;$('edDate').max=dmax;$('edDate').value=`${base.y}-${pad(base.m)}-${pad(base.d)}`;
+ $('edHours').value=fmtH(base.hours);$('edRate').value=base.rate.toFixed(2);$('edSleep').checked=base.sleep;
+ $('edSleepLbl').textContent=`Sleep-in (${money(CFG.sleep)})`;$('edSleepRow').hidden=!(CFG.sleep>0);
+ $('edDesc').value=base.desc;$('edRemove').hidden=isNew;msg($('edMsg'));edPreview();$('ed').showModal();$('edHours').focus();}
+function edValues(){const h=num($('edHours').value),r=num($('edRate').value),dv=$('edDate').value;
+ return {h,r,dv,sleep:CFG.sleep>0&&$('edSleep').checked,desc:$('edDesc').value.trim()};}
+function edPreview(){const v=edValues();$('edAmt').textContent=(v.h!=null&&v.r!=null)?`This shift: ${money(v.h*v.r+(v.sleep?CFG.sleep:0))}`:'';}
+['edHours','edRate','edSleep','edDesc'].forEach(id=>$(id).addEventListener('input',edPreview));
+$('edSave').onclick=()=>{
+ const v=edValues();
+ if(!v.dv)return msg($('edMsg'),'err','Choose the date of the shift.');
+ const [y,m,d]=v.dv.split('-').map(Number);
+ if(y!==S.y||m!==S.m)return msg($('edMsg'),'err',`Pick a date in ${MONTHS[S.m-1]} ${S.y}.`);
+ if(v.h==null||v.h<=0||v.h>24)return msg($('edMsg'),'err','Hours should be a number between 0 and 24, for example 8 or 7.5.');
+ if(v.r==null||v.r<0)return msg($('edMsg'),'err','The hourly rate should be a number, for example 15.');
+ const e=editing||{id:nextId++,y,m,d};Object.assign(e,{y,m,d,hours:v.h,rate:v.r,sleep:v.sleep,desc:v.desc});
+ if(!editing)S.entries.push(e);editing=null;$('ed').close();render();};
+$('edRemove').onclick=()=>{if(editing)S.entries=S.entries.filter(e=>e!==editing);editing=null;$('ed').close();render();};
+$('edCancel').onclick=()=>{editing=null;$('ed').close();};
+$('addShift').onclick=()=>openEditor(null);
 $('invNum').addEventListener('input',tally);
 
-async function buildBlob(){
- const dates=monthDates();const num=$('invNum').value.trim();const dv=$('invDate').value;
- if(!dates.length)throw new Error('Tap at least one day in step 2.');
- if(!num)throw new Error('Type the invoice number in step 3, for example I00016.');
- if(!dv)throw new Error('Choose the invoice date in step 3.');
+// ---------- invoice data ----------
+function invoiceData(){
+ const dates=monthDates();const number=$('invNum').value.trim().toUpperCase();const dv=$('invDate').value;
+ if(!dates.length)throw new Error('Tap at least one day in step 1.');
+ if(!number)throw new Error('Type the invoice number in step 2, for example I00016.');
+ if(!dv)throw new Error('Choose the invoice date in step 2.');
+ if(!bankReady()){$('settings').open=true;throw new Error('The sort code or account number is missing. Add them in “Invoice settings” at the bottom of the page.');}
  const [y,m,d]=dv.split('-').map(Number);
- const zip=await JSZip.loadAsync(await S.zip.generateAsync({type:'arraybuffer'}));
- const doc=new DOMParser().parseFromString(await zip.file('word/document.xml').async('string'),'application/xml');
- buildInvoice(doc,{dates,invDate:{y,m,d},number:num});
- zip.file('word/document.xml',XML_DECL+new XMLSerializer().serializeToString(doc).replace(/^<\?xml[^>]*\?>\s*/,''));
- const blob=await zip.generateAsync({type:'blob',compression:'DEFLATE',compressionOptions:{level:6},mimeType:DOCX});
- return {blob,name:fileName(),doc};}
-const DOCX='application/vnd.openxmlformats-officedocument.wordprocessingml.document';
-const fileName=()=>`invoice_${($('invNum').value.trim()||'new').replace(/[^\w-]/g,'')}.docx`;
+ let due='On receipt';if(CFG.terms>0){const t=new Date(y,m-1,d+CFG.terms);due=fmtD(t.getFullYear(),t.getMonth()+1,t.getDate());}
+ const rows=dates.map(x=>({date:fmtD(x.y,x.m,x.d),desc:descOf(x),hours:fmtH(x.hours),rate:x.rate,sleep:x.sleep?CFG.sleep:0,amount:amountOf(x)}));
+ const total=rows.reduce((a,r)=>a+r.amount,0);
+ return {number,invDate:fmtD(y,m,d),due,period:`${fmtD(S.y,S.m,1)} to ${fmtD(S.y,S.m,lastDay(S.y,S.m))}`,monthLabel:`${MONTHS[S.m-1]} ${S.y}`,
+  rows,total,client:{name:CFG.client,addr:CFG.addr.split('\n').map(s=>s.trim()).filter(Boolean),contact:CFG.contact},
+  bank:{bank:CFG.bank,accName:CFG.accName||COMPANY.name,sort:CFG.sort,acc:CFG.acc},
+  fileName:`Invoice_${number.replace(/[^\w-]/g,'')}_${MONTHS[S.m-1]}_${S.y}.pdf`};}
 
-$('make').onclick=async()=>{
- msg($('s3msg'));let out;
- try{out=await buildBlob();}catch(e){msg($('s3msg'),'err',e.message&&!/^[A-Z_]+$/.test(e.message)?e.message:'Something went wrong making the invoice. Check the file in step 1 is last month’s invoice.');return;}
- const {blob,name}=out;
- if(downloads){
-  try{await downloads.save({filename:name,data:blob});msg($('s3msg'),'found',`Saved ${name}.`);}
-  catch(e){if(e&&e.code==='declined')msg($('s3msg'),'note','Download cancelled.');
-   else if(e&&e.code==='rate_limited')msg($('s3msg'),'note','A download box is already open. Finish that one first.');
-   else msg($('s3msg'),'err','The download couldn’t start here. Try opening this page in a web browser.');}
- }else{
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();
-  setTimeout(()=>URL.revokeObjectURL(a.href),4000);msg($('s3msg'),'found',`Saved ${name} to your Downloads.`);}
-};
+// ---------- PDF ----------
+function makePdf(D){
+ const {jsPDF}=window.jspdf;const doc=new jsPDF({unit:'mm',format:'a4'});
+ const NAVY=[14,40,65],SKY=[69,176,225],INK=[30,43,54],MUTED=[90,105,120],LIGHT=[244,249,252],W=210,L=15,R=195;
+ doc.setProperties({title:`Invoice ${D.number}`,author:COMPANY.name,subject:`Invoice ${D.number} for ${D.monthLabel}`});
+ // header band
+ doc.setFillColor(...NAVY);doc.rect(0,0,W,40,'F');doc.setFillColor(...SKY);doc.rect(0,40,W,1.6,'F');
+ doc.setFont('helvetica','bold');doc.setFontSize(17);doc.setTextColor(...SKY);doc.text(COMPANY.display,L,17);
+ doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(255,255,255);
+ doc.text(`Company Registration No. ${COMPANY.regNo}`,L,24.5);doc.text(COMPANY.address,L,29.5);doc.text(COMPANY.email,L,34.5);
+ doc.setFont('helvetica','bold');doc.setFontSize(24);doc.text('INVOICE',R,19,{align:'right'});
+ doc.setFontSize(11);doc.setTextColor(...SKY);doc.text(D.number,R,27,{align:'right'});
+ // bill to
+ let y=53;doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(...MUTED);doc.text('Bill to',L,y);
+ y+=6;doc.setFont('helvetica','bold');doc.setFontSize(11.5);doc.setTextColor(...INK);doc.text(D.client.name,L,y);
+ doc.setFont('helvetica','normal');doc.setFontSize(9.5);
+ D.client.addr.forEach(s=>{y+=5;doc.text(s,L,y);});
+ if(D.client.contact){y+=5;doc.setTextColor(...MUTED);doc.text(D.client.contact,L,y);}
+ // meta
+ let my=53;const meta=[['Invoice number',D.number],['Invoice date',D.invDate],['Service period',D.period],['Payment due',D.due]];
+ meta.forEach(([k,v])=>{doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(...MUTED);doc.text(k,118,my);
+  doc.setFont('helvetica','bold');doc.setTextColor(...INK);doc.text(v,R,my,{align:'right'});my+=6;});
+ // items
+ const startY=Math.max(y,my)+8;
+ doc.autoTable({startY,margin:{left:L,right:W-R,bottom:28},theme:'plain',
+  head:[['Date','Description','Hours','Rate','Sleep-in','Amount']],
+  body:D.rows.map(r=>[r.date,r.desc,String(r.hours),money(r.rate)+'/hr',r.sleep?money(r.sleep):'-',money(r.amount)]),
+  styles:{font:'helvetica',fontSize:9,textColor:INK,cellPadding:{top:1.6,bottom:1.6,left:3,right:3}},
+  headStyles:{fillColor:NAVY,textColor:[255,255,255],fontStyle:'bold'},
+  alternateRowStyles:{fillColor:LIGHT},
+  columnStyles:{0:{cellWidth:26},2:{halign:'right',cellWidth:18},3:{halign:'right',cellWidth:28},4:{halign:'right',cellWidth:24},5:{halign:'right',fontStyle:'bold',cellWidth:28}},
+  didParseCell:c=>{if(c.section==='head'&&c.column.index>=2)c.cell.styles.halign='right';}});
+ y=doc.lastAutoTable.finalY+7;
+ if(y+56>277){doc.addPage();y=25;} // totals + payment box are 56mm tall; footer rule sits at 280mm
+ // totals
+ const tx=125;doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(...INK);
+ doc.text(`Subtotal (${D.rows.length} ${D.rows.length===1?'shift':'shifts'})`,tx,y);doc.text(money(D.total),R,y,{align:'right'});
+ y+=4;doc.setDrawColor(...SKY);doc.setLineWidth(0.7);doc.line(tx,y,R,y);
+ y+=7;doc.setFont('helvetica','bold');doc.setFontSize(13);doc.text('Total due',tx,y);doc.text(money(D.total),R,y,{align:'right'});
+ // payment box
+ y+=12;const bh=33;doc.setFillColor(...LIGHT);doc.rect(L,y,R-L,bh,'F');doc.setFillColor(...SKY);doc.rect(L,y,1.6,bh,'F');
+ doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(...INK);doc.text('Payment by bank transfer',L+6,y+7);
+ doc.setFont('helvetica','normal');doc.setFontSize(9.5);
+ const pl=[['Bank',D.bank.bank],['Account name',D.bank.accName],['Sort code',D.bank.sort],['Account number',D.bank.acc]];
+ pl.forEach(([k,v],i)=>{const yy=y+13.5+i*5;doc.setTextColor(...MUTED);doc.text(k,L+6,yy);doc.setTextColor(...INK);doc.text(v,L+40,yy);});
+ doc.setTextColor(...MUTED);doc.text('Please use reference',118,y+13.5);doc.setFont('helvetica','bold');doc.setTextColor(...INK);doc.setFontSize(12);doc.text(D.number,118,y+20);
+ doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(...MUTED);doc.text(D.due==='On receipt'?'Payment due on receipt':`Payment due by ${D.due}`,118,y+26);
+ // footer on every page
+ const pages=doc.getNumberOfPages();
+ for(let p=1;p<=pages;p++){doc.setPage(p);doc.setDrawColor(221,230,238);doc.setLineWidth(0.3);doc.line(L,280,R,280);
+  doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(...MUTED);
+  doc.text(`${COMPANY.name}  |  Company Registration No. ${COMPANY.regNo}  |  Registered office: ${COMPANY.address}`,W/2,285,{align:'center'});
+  doc.text(`Directors: ${COMPANY.directors}`+(pages>1?`   |   Page ${p} of ${pages}`:''),W/2,289.5,{align:'center'});}
+ return doc.output('blob');}
 
-// ===== Step 4: email =====
-const STD_MSG='Hello,\n\nPlease find attached invoice {number} for {month} ({days} days, {total}).\n\nKind regards,\nMcCollins International Ltd';
-const store={get(k,d){try{const v=localStorage.getItem('inv.'+k);return v==null?d:JSON.parse(v);}catch(e){return d;}},
- set(k,v){try{localStorage.setItem('inv.'+k,JSON.stringify(v));}catch(e){}}};
+// ---------- HTML preview (same data as the PDF) ----------
+function renderPaper(D,box){
+ box.innerHTML='';
+ const band=el('div','pp-band'),l=el('div'),r=el('div');
+ l.append(el('div','pp-co',COMPANY.display),el('div','small',`Company Registration No. ${COMPANY.regNo}`),el('div','small',COMPANY.address),el('div','small',COMPANY.email));
+ r.append(el('div','pp-title','INVOICE'),el('div','pp-no',D.number));band.append(l,r);box.appendChild(band);
+ const body=el('div','pp-body'),cols=el('div','pp-cols'),bill=el('div');
+ bill.append(el('div','pp-label','Bill to'),el('div','pp-client',D.client.name));D.client.addr.forEach(s=>bill.appendChild(el('div','',s)));
+ if(D.client.contact)bill.appendChild(el('div','pp-label',D.client.contact));
+ const mt=el('table','pp-meta');[['Invoice number',D.number],['Invoice date',D.invDate],['Service period',D.period],['Payment due',D.due]].forEach(([k,v])=>{const tr=el('tr');tr.append(el('td','',k),el('td','',v));tr.lastChild.style.fontWeight='700';mt.appendChild(tr);});
+ cols.append(bill,mt);body.appendChild(cols);
+ const T=el('table','pp-items'),hr=el('tr');
+ [['Date',''],['Description','hide-sm'],['Hours','r'],['Rate','r'],['Sleep-in','r'],['Amount','r']].forEach(([h,c])=>hr.appendChild(el('th',c,h)));T.appendChild(hr);
+ D.rows.forEach(x=>{const tr=el('tr');tr.append(el('td','',x.date),el('td','hide-sm',x.desc),el('td','r',String(x.hours)),el('td','r',money(x.rate)+'/hr'),el('td','r',x.sleep?money(x.sleep):'-'),el('td','r amt',money(x.amount)));T.appendChild(tr);});
+ const tw=el('div','tw');tw.appendChild(T);body.appendChild(tw);
+ const tot=el('div','pp-tot'),a=el('div'),b=el('div','due');
+ a.append(el('span','',`Subtotal (${D.rows.length} ${D.rows.length===1?'shift':'shifts'})`),el('span','',money(D.total)));b.append(el('span','','Total due'),el('span','',money(D.total)));tot.append(a,b);body.appendChild(tot);
+ const pay=el('div','pp-pay');pay.appendChild(el('b','','Payment by bank transfer'));
+ [`Bank: ${D.bank.bank}`,`Account name: ${D.bank.accName}`,`Sort code: ${D.bank.sort}`,`Account number: ${D.bank.acc}`,`Reference: ${D.number}`,D.due==='On receipt'?'Payment due on receipt':`Payment due by ${D.due}`].forEach(s=>pay.appendChild(el('div','',s)));
+ body.appendChild(pay);
+ const ft=el('div','pp-foot');ft.append(el('div','',`${COMPANY.name}  |  Company Registration No. ${COMPANY.regNo}  |  Registered office: ${COMPANY.address}`),el('div','',`Directors: ${COMPANY.directors}`));body.appendChild(ft);
+ box.appendChild(body);}
+
+function build(){const D=invoiceData();return {D,blob:makePdf(D),name:D.fileName};}
+function saveFile(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);}
+const errText=e=>e&&e.message&&!/^[a-z_]+$/i.test(e.message)?e.message:'Something went wrong making the invoice. Try again.';
+
+// ---------- email ----------
+const STD_MSG='Hello,\n\nPlease find attached invoice {number} for {month} ({days} days, {total}).\n\nKind regards,\n'+OWNER_NAME+'\n'+COMPANY.name;
 let bodyEdited=false,subjEdited=false,sending=false;
 const EMAIL_RE=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-function facts(){const n=monthDates().length;return {number:$('invNum').value.trim(),month:`${MONTHS[S.m-1]} ${S.y}`,days:String(n),total:money(n*(S.info?S.info.rowTotal:0))};}
-function fill(tpl){const f=facts();return tpl.replace(/\{(number|month|days|total)\}/g,(_,k)=>f[k]);}
+const GMAIL=!!GOOGLE_CLIENT_ID.trim();
+function facts(){return {number:$('invNum').value.trim().toUpperCase(),month:`${MONTHS[S.m-1]} ${S.y}`,days:String(daysCount()),total:money(monthEntries().reduce((t,e)=>t+amountOf(e),0))};}
+function fill(t){const f=facts();return t.replace(/\{(number|month|days|total)\}/g,(_,k)=>f[k]);}
 function refreshEmail(){
- if(!S.info)return;
  if(!subjEdited)$('subj').value=fill('Invoice {number} for {month}');
  if(!bodyEdited)$('body').value=fill(store.get('msg',STD_MSG));
- $('attName').textContent=fileName();
+ $('attName').textContent=`Invoice_${facts().number.replace(/[^\w-]/g,'')}_${MONTHS[S.m-1]}_${S.y}.pdf`;
  $('sendBtn').disabled=!monthDates().length||sending;
- $('sendBtn').textContent=monthDates().length?'Preview and send':'Tap at least one day first';}
+ if(!sending)$('sendBtn').textContent=monthDates().length?'Preview and send':'Tap at least one day first';}
 function renderRecipients(sel){
  const list=store.get('recipients',[]);const pick=$('toPick');pick.innerHTML='';
- list.forEach(a=>{const o=document.createElement('option');o.value=a;o.textContent=a;pick.appendChild(o);});
- const o=document.createElement('option');o.value='__new';o.textContent=list.length?'Someone else…':'Type an email address…';pick.appendChild(o);
- pick.value=sel&&list.includes(sel)?sel:(list.includes(store.get('lastTo',''))?store.get('lastTo',''):(list[0]||'__new'));
+ list.forEach(a=>{const o=el('option','',a);o.value=a;pick.appendChild(o);});
+ const o=el('option','',list.length?'Someone else…':'Type an email address…');o.value='__new';pick.appendChild(o);
+ const last=store.get('lastTo','');pick.value=sel&&list.includes(sel)?sel:(list.includes(last)?last:(list[0]||'__new'));
  $('newToWrap').hidden=pick.value!=='__new';}
-$('toPick').onchange=()=>{$('newToWrap').hidden=$('toPick').value!=='__new';msg($('confirmBox'));if(!$('newToWrap').hidden)$('newTo').focus();};
-$('subj').addEventListener('input',()=>{subjEdited=true;});
-$('body').addEventListener('input',()=>{bodyEdited=true;});
-$('resetMsg').onclick=()=>{store.set('msg',STD_MSG);bodyEdited=false;subjEdited=false;refreshEmail();msg($('s4msg'),'note','Back to the standard message.');};
-$('saveMsg').onclick=()=>{
- const f=facts();let t=$('body').value;
- for(const k of ['total','month','number']) if(f[k])t=t.split(f[k]).join('{'+k+'}');
+$('toPick').onchange=()=>{$('newToWrap').hidden=$('toPick').value!=='__new';if(!$('newToWrap').hidden)$('newTo').focus();};
+$('subj').addEventListener('input',()=>{subjEdited=true;});$('body').addEventListener('input',()=>{bodyEdited=true;});
+$('resetMsg').onclick=()=>{store.set('msg',STD_MSG);bodyEdited=subjEdited=false;refreshEmail();msg($('s4msg'),'note','Back to the standard message.');};
+$('saveMsg').onclick=()=>{const f=facts();let t=$('body').value;
+ for(const k of ['total','month','number'])if(f[k])t=t.split(f[k]).join('{'+k+'}');
  t=t.replace(new RegExp('\\b'+f.days+' days\\b','g'),'{days} days');
- store.set('msg',t);bodyEdited=false;refreshEmail();msg($('s4msg'),'found','Saved. Next month’s email will start with this message, with the new invoice details filled in.');};
-function recipient(){const v=$('toPick').value==='__new'?$('newTo').value.trim():$('toPick').value;return v;}
+ store.set('msg',t);bodyEdited=false;refreshEmail();msg($('s4msg'),'found','Saved. Next month’s email will start with this message, with the new details filled in.');};
+const recipient=()=>$('toPick').value==='__new'?$('newTo').value.trim():$('toPick').value;
+function rememberTo(to){const list=store.get('recipients',[]);if(!list.includes(to))list.unshift(to);store.set('recipients',list.slice(0,8));store.set('lastTo',to);renderRecipients(to);$('newTo').value='';}
+function markIssued(D,to){
+ const hist=store.get('history',[]);hist.unshift({number:D.number,month:D.monthLabel,total:D.total,to,on:new Date().toISOString().slice(0,10)});store.set('history',hist.slice(0,36));
+ const m=/^([A-Za-z]*)(\d+)$/.exec(D.number);
+ CFG.last={y:S.y,m:S.m,number:D.number};if(m)CFG.next=m[1]+String(+m[2]+1).padStart(m[2].length,'0');
+ store.set('cfg',CFG);$('cfNext').value=CFG.next;showLast();}
+function showLast(){const h=store.get('history',[])[0];
+ $('lastLine').textContent=h?`Last invoice: ${h.number} for ${h.month}, sent ${h.on.split('-').reverse().join('/')}.`:(CFG.last&&CFG.last.number?`Last invoice: ${CFG.last.number} for ${MONTHS[CFG.last.m-1]} ${CFG.last.y}.`:'');}
 
-// ===== Preview (read back from the generated file itself) =====
-function el(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e;}
-function renderPaper(doc,box){
- box.innerHTML='';
- const seen=new Set(),boxes=[];
- for(const tb of els(doc,'txbxContent')){const lines=els(tb,'p').map(pText).map(s=>s.trim()).filter(Boolean);const k=lines.join('|');if(lines.length&&!seen.has(k)){seen.add(k);boxes.push(lines);}}
- const take=re=>{const i=boxes.findIndex(l=>re.test(l.join(' ')));return i<0?null:boxes.splice(i,1)[0];};
- const title=take(/^\s*INVOICE\s*$/i),bill=take(/Invoice\s*Number/i),pay=take(/Payment terms|Sort Code|Account No/i),addr=take(/Registered Address|Email:/i),reg=take(/Registration No/i);
- const top=el('div','top'),left=el('div'),right=el('div');
- boxes.forEach((l,i)=>l.forEach(s=>left.appendChild(el('div',i===0?'co':'small',s))));
- if(reg)reg.forEach(s=>left.appendChild(el('div','small',s)));
- if(addr)addr.forEach(s=>left.appendChild(el('div','small',s)));
- right.appendChild(el('div','title',title?title[0]:'INVOICE'));
- if(bill){const bx=el('div','bill');bill.forEach((s,i)=>bx.appendChild(el('div',i===0&&!/:/.test(s)?'co':'',s)));right.appendChild(bx);}
- top.append(left,right);box.appendChild(top);
- const inv=findInvoiceTable(doc);
- for(const tbl of els(doc,'tbl')){
-  const wrap=el('div','tw'),T=el('table',tbl===inv?'inv':'gross');
-  for(const tr of kids(tbl,'tr')){const cells=kids(tr,'tc').map(cellText);if(tbl===inv&&cells.every(c=>!c.trim()))continue;const r=el('tr');cells.forEach(c=>r.appendChild(el('td','',c)));T.appendChild(r);}
-  wrap.appendChild(T);box.appendChild(wrap);}
- if(pay){const f=el('div','foot');pay.forEach(s=>f.appendChild(el('div','small',s)));box.appendChild(f);}
-}
-let pending=null;
-async function openPreview(forSend){
- msg($('s4msg'));msg($('s3msg'));
- let to='';
+// ---------- preview ----------
+let pending=null,pdfUrl=null;
+function openPreview(forSend){
+ msg($('s2msg'));msg($('s4msg'));let to='';
  if(forSend){to=recipient();if(!EMAIL_RE.test(to)){msg($('s4msg'),'err','Type a full email address, for example name@company.co.uk.');return;}}
- let out;try{out=await buildBlob();}catch(e){msg($(forSend?'s4msg':'s3msg'),'err',e.message&&!/^[A-Z_]+$/.test(e.message)?e.message:'Something went wrong making the invoice. Check the file in step 1.');return;}
- renderPaper(out.doc,$('pvPaper'));
+ let out;try{out=build();}catch(e){msg($(forSend?'s4msg':'s2msg'),'err',errText(e));return;}
+ renderPaper(out.D,$('pvPaper'));
+ if(pdfUrl)URL.revokeObjectURL(pdfUrl);pdfUrl=URL.createObjectURL(out.blob);
+ const w=$('pvWarn');w.innerHTML='';
+ const dup=store.get('history',[]).find(h=>h.number===out.D.number)||(CFG.last&&CFG.last.number===out.D.number?{number:out.D.number}:null);
+ if(dup)w.appendChild(el('div','warnbox',`Invoice ${out.D.number} has already been used${dup.month?' for '+dup.month:''}. Check the invoice number before sending.`));
  const m=$('pvMail');m.innerHTML='';
  if(forSend){const c=el('div','mail'),dl=el('dl');
-  [['To',to],['Subject',$('subj').value.trim()],['Attached',out.name]].forEach(([k,v])=>{dl.append(el('dt','',k),el('dd','',v));});
+  [['To',to],['Subject',$('subj').value.trim()],['Attached',out.name]].forEach(([k,v])=>dl.append(el('dt','',k),el('dd','',v)));
   c.append(dl,el('pre','',$('body').value));m.appendChild(c);}
- const f=facts();
  $('pvTitle').textContent=forSend?'Check before sending':'Invoice preview';
- $('pvSub').textContent=forSend?`Invoice ${f.number}: ${f.days} days, ${f.total}. If anything is wrong, go back and fix it.`:`Invoice ${f.number}: ${f.days} days, ${f.total}. This is exactly what will be in the file.`;
- $('pvSend').hidden=!forSend;$('pvSend').textContent=GMAIL?'Looks right, send it':'Looks right, open in Gmail';$('pvBack').textContent=forSend?'Go back and fix':'Close';
- pending=forSend?{to,out}:null;
- $('pv').showModal();$('pvScroll').scrollTop=0;$('pvBack').focus();
-}
-$('previewBtn').onclick=()=>openPreview(false);
+ $('pvSub').textContent=`Invoice ${out.D.number}: ${daysCount()} days, ${money(out.D.total)}. `+(forSend?'If anything is wrong, go back and fix it.':'This is what the PDF contains.');
+ $('pvSend').hidden=!forSend;$('pvSend').textContent=GMAIL?'Looks right, send it':'Looks right, open in Gmail';
+ $('pvBack').textContent=forSend?'Go back and fix':'Close';
+ pending=forSend?{to,out}:null;$('pv').showModal();$('pvScroll').scrollTop=0;$('pvBack').focus();}
 $('sendBtn').onclick=()=>openPreview(true);
 $('pvBack').onclick=()=>{pending=null;$('pv').close();};
+$('pvOpen').onclick=()=>{if(pdfUrl)window.open(pdfUrl,'_blank');};
 $('pvSend').onclick=()=>{const p=pending;pending=null;$('pv').close();if(p)send(p.to,p.out);};
 
-function b64(blob){return new Promise((res,rej)=>{const fr=new FileReader();fr.onload=()=>res(String(fr.result).split(',')[1]);fr.onerror=rej;fr.readAsDataURL(blob);});}
-
-function rememberTo(to){const list=store.get('recipients',[]);if(!list.includes(to))list.unshift(to);store.set('recipients',list.slice(0,8));store.set('lastTo',to);renderRecipients(to);$('newTo').value='';}
-function saveFile(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);}
-
-// --- Mode 1: no setup. Save the file and open a filled-in Gmail email. ---
+// ---------- sending ----------
 function openCompose(to,out){
  const u='https://mail.google.com/mail/?view=cm&fs=1&to='+encodeURIComponent(to)+'&su='+encodeURIComponent($('subj').value.trim())+'&body='+encodeURIComponent($('body').value);
- const w=window.open(u,'_blank');
- saveFile(out.blob,out.name);rememberTo(to);
- if(!w){msg($('s4msg'),'err',`The invoice is saved in your Downloads, but your browser blocked the Gmail window. Allow pop-ups for this page, then press Preview and send again.`);return;}
- msg($('s4msg'),'found',`Nearly done, Collins. ${out.name} is saved in your Downloads and a Gmail email is open in a new tab. Click the paperclip, choose ${out.name}, then press Send.`);
- $('s4').classList.add('done');}
-
-// --- Mode 2: one-click sending through the Gmail API (needs GOOGLE_CLIENT_ID). ---
+ const w=window.open(u,'_blank');saveFile(out.blob,out.name);rememberTo(to);
+ if(!w){msg($('s4msg'),'err','The invoice is saved in your Downloads, but your browser blocked the Gmail window. Allow pop-ups for this page, then press Preview and send again.');return;}
+ markIssued(out.D,to);
+ msg($('s4msg'),'found',`Nearly done, ${OWNER_NAME}. ${out.name} is saved in your Downloads and a Gmail email is open in a new tab. Click the paperclip, choose the invoice, then press Send.`);}
 let gToken=null,gExp=0,tokenClient=null;
 function getToken(){return new Promise((res,rej)=>{
  if(gToken&&Date.now()<gExp-60000)return res(gToken);
@@ -431,22 +585,17 @@ function buildMime(to,subject,body,fname,att){
  const bnd='inv_'+Math.random().toString(36).slice(2),safe=fname.replace(/"/g,'');
  return ['To: '+to,'Subject: =?UTF-8?B?'+b64utf8(subject)+'?=','MIME-Version: 1.0','Content-Type: multipart/mixed; boundary="'+bnd+'"','',
   '--'+bnd,'Content-Type: text/plain; charset="UTF-8"','Content-Transfer-Encoding: base64','',wrap76(b64utf8(body)),
-  '--'+bnd,'Content-Type: '+DOCX+'; name="'+safe+'"','Content-Disposition: attachment; filename="'+safe+'"','Content-Transfer-Encoding: base64','',wrap76(att),
+  '--'+bnd,'Content-Type: application/pdf; name="'+safe+'"','Content-Disposition: attachment; filename="'+safe+'"','Content-Transfer-Encoding: base64','',wrap76(att),
   '--'+bnd+'--',''].join('\r\n');}
-
-function failWith(text,to,out){
- msg($('s4msg'),'err',text);
- const b=document.createElement('button');b.className='btn';b.style.marginTop='10px';b.textContent='Open in Gmail instead';
- b.onclick=()=>openCompose(to,out);$('s4msg').appendChild(b);}
+function failWith(text,to,out){msg($('s4msg'),'err',text);const b=el('button','btn','Open in Gmail instead');b.style.marginTop='10px';b.onclick=()=>openCompose(to,out);$('s4msg').appendChild(b);}
 function send(to,out){
  if(!GMAIL)return openCompose(to,out);
  if(sending)return;sending=true;
- const tokenP=getToken(); // must start inside the click so Google's sign-in window isn't blocked
+ const tokenP=getToken(); // started inside the click so Google's window isn't blocked
  refreshEmail();$('sendBtn').textContent='Sending…';msg($('s4msg'),'note','Sending… if a Google window opens, sign in as McCollins and choose Allow.');
  (async()=>{
   let token;
-  try{token=await tokenP;}catch(e){
-   const c=e&&e.code;
+  try{token=await tokenP;}catch(e){const c=e&&e.code;
    failWith(c==='access_denied'?'Gmail sending needs your permission. Press Preview and send again and choose Allow in the Google window.'
     :c==='popup_closed'?'The Google sign-in window was closed before it finished. Press Preview and send again.'
     :c==='popup_failed_to_open'?'Your browser blocked the Google sign-in window. Allow pop-ups for this page, then press Preview and send again.'
@@ -454,24 +603,21 @@ function send(to,out){
     :'Google sign-in didn’t finish. Press Preview and send again.',to,out);
    sending=false;refreshEmail();return;}
   let r;
-  try{
-   const raw=btoa(buildMime(to,$('subj').value.trim(),$('body').value,out.name,await b64(out.blob))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+  try{const raw=btoa(buildMime(to,$('subj').value.trim(),$('body').value,out.name,await b64(out.blob))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
    r=await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({raw})});
-  }catch(e){
-   failWith('The connection dropped, so the email may or may not have gone. Check your Gmail Sent folder before sending again.',to,out);sending=false;refreshEmail();return;}
-  if(r.ok){rememberTo(to);msg($('s4msg'),'found',`All done, Collins. Sent to ${to} with ${out.name} attached. You’ll find it in your Gmail Sent folder.`);$('s4').classList.add('done');}
-  else{
-   let detail='';try{detail=((await r.json()).error||{}).message||'';}catch(e){}
+  }catch(e){failWith('The connection dropped, so the email may or may not have gone. Check your Gmail Sent folder before sending again.',to,out);sending=false;refreshEmail();return;}
+  if(r.ok){rememberTo(to);markIssued(out.D,to);msg($('s4msg'),'found',`All done, ${OWNER_NAME}. Sent to ${to} with ${out.name} attached. You’ll find it in your Gmail Sent folder.`);}
+  else{let detail='';try{detail=((await r.json()).error||{}).message||'';}catch(e){}
    if(r.status===401){gToken=null;failWith('Your Google sign-in ran out. Press Preview and send again to sign in.',to,out);}
    else if(r.status===400)failWith('Gmail didn’t accept it. Check the email address and try again.'+(detail?' ('+detail+')':''),to,out);
    else if(r.status===403)failWith('Gmail refused to send from this page. You can still send it with the button below.'+(detail?' ('+detail+')':''),to,out);
    else failWith('Gmail had a problem, so the email may or may not have gone. Check your Gmail Sent folder before sending again.',to,out);}
-  sending=false;refreshEmail();
- })();}
+  sending=false;refreshEmail();})();}
 
-$('sendNote').textContent=GMAIL?'You’ll see the invoice and email before anything is sent.':'You’ll see the invoice and email first. Then the invoice saves to your Downloads and Gmail opens with everything filled in, ready for you to attach it.';
-renderRecipients();
-(()=>{const h=new Date().getHours();$('greet').textContent=(h<5?'Hello':h<12?'Good morning':h<18?'Good afternoon':'Good evening')+', Collins';})();
+// ---------- start ----------
+$('sendNote').textContent=GMAIL?'You’ll see the invoice and email before anything is sent.':'You’ll see the invoice and email first. Then the PDF saves to your Downloads and Gmail opens with everything filled in, ready for you to attach it.';
+fillSettings();$('invNum').value=CFG.next;setInvDate();renderRecipients();showLast();render();
+(()=>{const h=new Date().getHours();$('greet').textContent=(h<5?'Hello':h<12?'Good morning':h<18?'Good afternoon':'Good evening')+', '+OWNER_NAME;})();
 </script>
 </body>
 </html>
